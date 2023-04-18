@@ -1,4 +1,5 @@
 import SidebarWithHeader from '@/components/NavBar';
+import { listarAlunos, listarProfessores } from '@/services/api';
 import {
 	Avatar,
 	Badge,
@@ -20,13 +21,50 @@ import {
 	useDisclosure,
 	Text,
 	Box,
-	IconButton
+	IconButton,
+	Stack,
+	Skeleton
 } from '@chakra-ui/react';
 import { Table, Thead, Tbody, Tr, Th, Td, TableContainer } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
 import { FaSearch, FaPlus, FaPencilAlt, FaTrashAlt } from 'react-icons/fa';
 
-export default function Professores() {
+type ProfessorType = {
+	nome: string;
+	avatarUrl: string;
+	sobrenome: string;
+	cpf: string;
+	email: string;
+	ativo: true;
+};
+
+export default function Alunos() {
 	const { isOpen, onOpen, onClose } = useDisclosure();
+	const [ professores, setProfessores ] = useState<ProfessorType[]>([]);
+	const [ loading, setLoading ] = useState(true);
+
+	const buscarProfessores = async () => {
+		setLoading(true);
+		listarProfessores()
+			.then((response) => {
+				setLoading(false);
+				console.log(loading);
+				setProfessores(response.data);
+			})
+			.catch((err) => {
+				setLoading(false);
+				console.log(loading);
+				console.log(err);
+			});
+	};
+
+	useEffect(
+		() => {
+			buscarProfessores();
+		},
+		[ onClose ]
+	);
+
 	return (
 		<SidebarWithHeader>
 			<Flex
@@ -58,99 +96,77 @@ export default function Professores() {
 					</InputGroup>
 				</Flex>
 			</Flex>
-
-			<TableContainer backgroundColor={'#FFF'} borderRadius="10px">
-				<Table variant="simple">
-					<Thead>
-						<Tr>
-							<Th>Nome</Th>
-							<Th>CPF</Th>
-							<Th>Email</Th>
-							<Th>Status</Th>
-							<Th> </Th>
-						</Tr>
-					</Thead>
-					<Tbody>
-						<Tr>
-							<Td>
-								<Flex gap={'10px'} justifyContent={'center'} alignItems={'center'}>
-									<Avatar size="sm" name="Dan Abrahmov" src="https://bit.ly/dan-abramov" />
-									João Abramovich
-								</Flex>
-							</Td>
-							<Td>117.784.579-24</Td>
-							<Td>andsuprano@gmail.com</Td>
-							<Td>
-								<Badge colorScheme="green">ATIVO</Badge>
-							</Td>
-							<Td>
-								<Flex gap={'10px'}>
-									<IconButton
-										icon={<FaPencilAlt />}
-										colorScheme="yellow"
-										variant="solid"
-										aria-label=""
-									/>
-									<IconButton icon={<FaTrashAlt />} colorScheme="red" variant="solid" aria-label="" />
-								</Flex>
-							</Td>
-						</Tr>
-						<Tr>
-							<Td>
-								<Flex gap={'10px'} justifyContent={'center'} alignItems={'center'}>
-									<Avatar size="sm" name="Dan Abrahmov" src="https://bit.ly/dan-abramov" />
-									João Abramovich
-								</Flex>
-							</Td>
-							<Td>117.784.579-24</Td>
-							<Td>andsuprano@gmail.com</Td>
-							<Td>
-								<Badge colorScheme="green">ATIVO</Badge>
-							</Td>
-							<Td>
-								<Flex gap={'10px'}>
-									<IconButton
-										icon={<FaPencilAlt />}
-										colorScheme="yellow"
-										variant="solid"
-										aria-label=""
-									/>
-									<IconButton icon={<FaTrashAlt />} colorScheme="red" variant="solid" aria-label="" />
-								</Flex>
-							</Td>
-						</Tr>
-						<Tr>
-							<Td>
-								<Flex gap={'10px'} justifyContent={'center'} alignItems={'center'}>
-									<Avatar size="sm" name="Dan Abrahmov" src="https://bit.ly/dan-abramov" />
-									João Abramovich
-								</Flex>
-							</Td>
-							<Td>117.784.579-24</Td>
-							<Td>andsuprano@gmail.com</Td>
-							<Td>
-								<Badge colorScheme="green">ATIVO</Badge>
-							</Td>
-							<Td>
-								<Flex gap={'10px'}>
-									<IconButton
-										icon={<FaPencilAlt />}
-										colorScheme="yellow"
-										variant="solid"
-										aria-label=""
-									/>
-									<IconButton icon={<FaTrashAlt />} colorScheme="red" variant="solid" aria-label="" />
-								</Flex>
-							</Td>
-						</Tr>
-					</Tbody>
-				</Table>
-			</TableContainer>
+			{loading ? (
+				<Stack>
+					<Skeleton height="20px" />
+					<Skeleton height="40px" />
+					<Skeleton height="40px" />
+					<Skeleton height="40px" />
+					<Skeleton height="20px" />
+				</Stack>
+			) : (
+				<TableContainer backgroundColor={'#FFF'} borderRadius="10px">
+					<Table variant="simple">
+						<Thead>
+							<Tr>
+								<Th>Nome</Th>
+								<Th>CPF</Th>
+								<Th>Email</Th>
+								<Th>Status</Th>
+								<Th>Actions</Th>
+							</Tr>
+						</Thead>
+						<Tbody>
+							{professores.map((professor) => {
+								return (
+									<Tr>
+										<Td>
+											<Flex gap={'10px'} alignItems={'center'}>
+												<Avatar
+													size="sm"
+													name={professor.nome + ' ' + professor.sobrenome}
+													src={professor.avatarUrl}
+												/>
+												{professor.nome + ' ' + professor.sobrenome}
+											</Flex>
+										</Td>
+										<Td>{professor.cpf}</Td>
+										<Td>{professor.email}</Td>
+										<Td>
+											{professor.ativo ? (
+												<Badge colorScheme="green">ATIVO</Badge>
+											) : (
+												<Badge colorScheme="red">INATIVO</Badge>
+											)}
+										</Td>
+										<Td>
+											<Flex gap={'10px'}>
+												<IconButton
+													icon={<FaPencilAlt />}
+													colorScheme="yellow"
+													variant="solid"
+													aria-label=""
+												/>
+												<IconButton
+													icon={<FaTrashAlt />}
+													colorScheme="red"
+													variant="solid"
+													aria-label=""
+												/>
+											</Flex>
+										</Td>
+									</Tr>
+								);
+							})}
+						</Tbody>
+					</Table>
+				</TableContainer>
+			)}
 
 			<Modal onClose={onClose} isOpen={isOpen} isCentered>
 				<ModalOverlay />
 				<ModalContent>
-					<ModalHeader>Adicionar novo Professor</ModalHeader>
+					<ModalHeader>Adicionar novo professor</ModalHeader>
 					<ModalCloseButton />
 					<ModalBody>
 						<Flex flexDir={'column'} gap={'15px'}>

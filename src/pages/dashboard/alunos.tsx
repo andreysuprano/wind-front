@@ -1,4 +1,5 @@
 import SidebarWithHeader from '@/components/NavBar';
+import { StatsCard } from '@/components/StatsCard';
 import { listarAlunos } from '@/services/api';
 import {
 	Avatar,
@@ -67,6 +68,11 @@ export default function Alunos() {
 
 	return (
 		<SidebarWithHeader>
+			<Flex marginBottom={'30px'} gap={'10px'} flexWrap={'wrap'}>
+				<StatsCard stat="150" title="Quantidade de Alunos" icon={<FaPlus />} />
+				<StatsCard stat="150" title="Quantidade de Alunos" icon={<FaPlus />} />
+				<StatsCard stat="150" title="Quantidade de Alunos" icon={<FaPlus />} />
+			</Flex>
 			<Flex
 				flexDir={'column'}
 				gap={'20px'}
@@ -113,7 +119,7 @@ export default function Alunos() {
 								<Th>CPF</Th>
 								<Th>Email</Th>
 								<Th>Status</Th>
-								<Th> </Th>
+								<Th> Alunos </Th>
 							</Tr>
 						</Thead>
 						<Tbody>

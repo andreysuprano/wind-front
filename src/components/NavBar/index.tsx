@@ -26,6 +26,7 @@ import { FiMenu, FiBell, FiChevronDown } from 'react-icons/fi';
 import { FaUserTie, FaUserGraduate, FaBook, FaChalkboardTeacher, FaHome } from 'react-icons/fa';
 import { IconType } from 'react-icons';
 import { ReactText } from 'react';
+import ThemeSwitcher from '../ThemeSwitcher';
 
 interface LinkItemProps {
 	name: string;
