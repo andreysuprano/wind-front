@@ -36,7 +36,7 @@ export default function Aulas() {
 				</Flex>
 				<Flex>
 					<InputGroup gap={'20px'}>
-						<InputLeftElement pointerEvents="none" children={<FaSearch />} color={'gray.300'} />
+						<InputLeftElement pointerEvents="none" children={[ <FaSearch /> ]} color={'gray.300'} />
 						<Input type="tel" placeholder="Buscar Alunos" />
 						<Button leftIcon={<FaPlus />} colorScheme="teal" variant="solid">
 							Novo

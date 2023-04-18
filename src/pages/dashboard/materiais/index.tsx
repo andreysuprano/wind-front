@@ -9,8 +9,7 @@ import {
 	Flex,
 	Input,
 	InputGroup,
-	InputLeftElement,
-	WrapItem
+	InputLeftElement
 } from '@chakra-ui/react';
 import { Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableContainer } from '@chakra-ui/react';
 import { FaSearch, FaPlus } from 'react-icons/fa';
@@ -39,7 +38,7 @@ export default function Materiais() {
 				</Flex>
 				<Flex>
 					<InputGroup gap={'20px'}>
-						<InputLeftElement pointerEvents="none" children={<FaSearch />} color={'gray.300'} />
+						<InputLeftElement pointerEvents="none" children={[ <FaSearch /> ]} color={'gray.300'} />
 						<Input type="tel" placeholder="Buscar Alunos" />
 						<Button leftIcon={<FaPlus />} colorScheme="teal" variant="solid">
 							Novo

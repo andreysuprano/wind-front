@@ -94,7 +94,7 @@ export default function Alunos() {
 				</Flex>
 				<Flex>
 					<InputGroup gap={'20px'}>
-						<InputLeftElement pointerEvents="none" children={<FaSearch />} color={'gray.300'} />
+						<InputLeftElement pointerEvents="none" children={[ <FaSearch /> ]} color={'gray.300'} />
 						<Input type="tel" placeholder="Buscar Alunos" />
 						<Button leftIcon={<FaPlus />} colorScheme="teal" variant="solid" onClick={onOpen}>
 							Novo
@@ -123,9 +123,9 @@ export default function Alunos() {
 							</Tr>
 						</Thead>
 						<Tbody>
-							{alunos.map((aluno) => {
+							{alunos.map((aluno, index) => {
 								return (
-									<Tr>
+									<Tr key={index}>
 										<Td>
 											<Flex gap={'10px'} alignItems={'center'}>
 												<Avatar
