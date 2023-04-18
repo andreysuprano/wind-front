@@ -44,7 +44,7 @@ export default function Alunos() {
 	const [ alunos, setAlunos ] = useState<AlunosType[]>([]);
 	const [ loading, setLoading ] = useState(true);
 
-	const buscarAlunos = async () => {
+	async function buscarAlunos() {
 		setLoading(true);
 		listarAlunos()
 			.then((response) => {
@@ -57,14 +57,11 @@ export default function Alunos() {
 				console.log(loading);
 				console.log(err);
 			});
-	};
+	}
 
-	useEffect(
-		() => {
-			buscarAlunos();
-		},
-		[ onClose ]
-	);
+	useEffect(() => {
+		buscarAlunos();
+	}, []);
 
 	return (
 		<SidebarWithHeader>
@@ -94,7 +91,9 @@ export default function Alunos() {
 				</Flex>
 				<Flex>
 					<InputGroup gap={'20px'}>
-						<InputLeftElement pointerEvents="none" children={[ <FaSearch /> ]} color={'gray.300'} />
+						<InputLeftElement pointerEvents="none" color={'gray.300'}>
+							<FaSearch />
+						</InputLeftElement>
 						<Input type="tel" placeholder="Buscar Alunos" />
 						<Button leftIcon={<FaPlus />} colorScheme="teal" variant="solid" onClick={onOpen}>
 							Novo
