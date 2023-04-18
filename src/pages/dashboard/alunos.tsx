@@ -44,6 +44,7 @@ export default function Alunos() {
 	const [ loading, setLoading ] = useState(true);
 
 	const buscarAlunos = async () => {
+		setLoading(true);
 		listarAlunos()
 			.then((response) => {
 				setLoading(false);
@@ -57,9 +58,12 @@ export default function Alunos() {
 			});
 	};
 
-	useEffect(() => {
-		buscarAlunos();
-	}, []);
+	useEffect(
+		() => {
+			buscarAlunos();
+		},
+		[ onClose ]
+	);
 
 	return (
 		<SidebarWithHeader>
