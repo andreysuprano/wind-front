@@ -9,6 +9,11 @@ type UserType = {
 	ativo: true;
 };
 
+type AuthType = {
+	username: string;
+	password: string;
+};
+
 export const adicionarProfessor = async (usuario: UserType) => {
 	return await client.post('/v1/user/professor', usuario);
 };
@@ -23,4 +28,8 @@ export const listarAlunos = async () => {
 
 export const listarProfessores = async () => {
 	return await client.get('/v1/user/professores');
+};
+
+export const auth = async (auth: AuthType) => {
+	return await client.post('/v1/auth/login', auth);
 };
