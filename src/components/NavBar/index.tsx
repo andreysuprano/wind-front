@@ -28,6 +28,7 @@ import { IconType } from 'react-icons';
 import { ReactText } from 'react';
 import ThemeSwitcher from '../ThemeSwitcher';
 import useAuth from '@/hooks/useAuth';
+import { ModalPerfil } from '../ModalPerfil';
 
 interface LinkItemProps {
 	name: string;
@@ -61,7 +62,7 @@ export default function SidebarWithHeader({ children }: { children: ReactNode })
 				</DrawerContent>
 			</Drawer>
 			{/* mobilenav */}
-			<MobileNav onOpen={onOpen} />
+			<MobileNav menuOpen={onOpen} />
 			<Box ml={{ base: 0, md: 60 }} p="4">
 				{children}
 			</Box>
@@ -86,9 +87,15 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
 			{...rest}
 		>
 			<Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
-				<Text fontSize="1xl" fontFamily="monospace" fontWeight="bold">
-					Windfall English
-				</Text>
+				<Flex justifyContent="center" alignItems="center" gap={'10px'}>
+					<Avatar
+						size={'md'}
+						src={'https://firebasestorage.googleapis.com/v0/b/projetcs-storage.appspot.com/o/windfall%2FWhatsApp%20Image%202023-03-29%20at%2014.04.46.jpeg?alt=media&token=1095f376-9566-4936-99c3-5eb9e3c1a541'}
+					/>
+					<Text fontSize="lg" fontFamily="Poppins" fontWeight="bold">
+						Windfall E. I.
+					</Text>
+				</Flex>
 				<CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
 			</Flex>
 			{LinkItems.map((link) => (
@@ -138,13 +145,16 @@ const NavItem = ({ icon, children, href, ...rest }: NavItemProps) => {
 };
 
 interface MobileProps extends FlexProps {
-	onOpen: () => void;
+	menuOpen: () => void;
 }
-const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
+const MobileNav = ({ menuOpen, ...rest }: MobileProps) => {
 	const {user, logout} = useAuth();
 	const handleLogout = () =>{
 		logout();
 	}
+
+	const {isOpen, onClose, onOpen} = useDisclosure();
+
 	return (
 		<Flex
 			ml={{ base: 0, md: 60 }}
@@ -159,7 +169,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
 		>
 			<IconButton
 				display={{ base: 'flex', md: 'none' }}
-				onClick={onOpen}
+				onClick={menuOpen}
 				variant="outline"
 				aria-label="open menu"
 				icon={<FiMenu />}
@@ -198,13 +208,14 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
 							bg={useColorModeValue('white', 'gray.900')}
 							borderColor={useColorModeValue('gray.200', 'gray.700')}
 						>
-							<MenuItem>Perfil</MenuItem>
+							<MenuItem onClick={onOpen}>Perfil</MenuItem>
 							<MenuDivider />
 							<MenuItem onClick={handleLogout}>Sign out</MenuItem>
 						</MenuList>
 					</Menu>
 				</Flex>
 			</HStack>
+			<ModalPerfil isOpen={isOpen} onOpen={onOpen} onClose={onClose} user={user}/>
 		</Flex>
 	);
 };
