@@ -1,5 +1,5 @@
 import SidebarWithHeader from '@/components/SideBar';
-import { listarAlunos, listarProfessores } from '@/services/api';
+import { listarAlunos, listarProfessores, adicionarProfessor, updateUser } from '@/services/api';
 import {
 	Avatar,
 	Badge,
@@ -23,11 +23,14 @@ import {
 	Box,
 	IconButton,
 	Stack,
-	Skeleton
+	Skeleton,
+	useToast
 } from '@chakra-ui/react';
 import { Table, Thead, Tbody, Tr, Th, Td, TableContainer } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FaSearch, FaPlus, FaPencilAlt, FaTrashAlt } from 'react-icons/fa';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { client } from '@/services/client';
 
 type ProfessorType = {
 	nome: string;
@@ -36,12 +39,32 @@ type ProfessorType = {
 	cpf: string;
 	email: string;
 	ativo: true;
+	id: string;
+	senha: string;
 };
 
 export default function Alunos() {
+	const { formState: { errors }, control, handleSubmit, watch, setValue } = useForm<ProfessorType>({
+		defaultValues: {
+			nome: '',
+			sobrenome: '',
+			cpf: '',
+			email: '',
+			senha: '',
+			ativo: true
+		}
+	});
+
+	const [ search, setSearch ] = useState('');
+	const toast = useToast();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [ professores, setProfessores ] = useState<ProfessorType[]>([]);
 	const [ loading, setLoading ] = useState(true);
+	const [ editingProfCPF, setEditingProfCPF ] = useState('');
+	const editingProf = useMemo(() => professores.find((professor) => professor.cpf === editingProfCPF), [
+		professores,
+		editingProfCPF
+	]);
 
 	async function buscarProfessores() {
 		setLoading(true);
@@ -51,16 +74,110 @@ export default function Alunos() {
 				console.log(loading);
 				setProfessores(response.data);
 			})
-			.catch((err) => {
+			.catch((error) => {
+				if (!error.response) return;
 				setLoading(false);
-				console.log(loading);
-				console.log(err);
+				toast({
+					title: `Não foi possível listar professores.`,
+					status: 'error',
+					isClosable: true
+				});
 			});
 	}
 
 	useEffect(() => {
 		buscarProfessores();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+
+	useEffect(
+		() => {
+			if (editingProf) {
+				setValue('nome', editingProf.nome);
+				setValue('sobrenome', editingProf.sobrenome);
+				setValue('cpf', editingProf.cpf);
+				setValue('email', editingProf.email);
+			} else {
+				setValue('nome', '');
+				setValue('sobrenome', '');
+				setValue('cpf', '');
+				setValue('email', '');
+			}
+		},
+		[ editingProf, setValue ]
+	);
+
+	const handleAddTeacher: SubmitHandler<any> = (formData) => {
+		setLoading(true);
+		adicionarProfessor(formData)
+			.then(() => {
+				onClose();
+				setLoading(false);
+				window.location.reload();
+				toast({
+					title: `Professor(a) adicionado com sucesso.`,
+					status: 'success',
+					isClosable: true
+				});
+			})
+			.catch((error) => {
+				setLoading(false);
+				if (!error.response) return;
+				toast({
+					title: `Não foi possível adicionar professor(a).`,
+					status: 'error',
+					isClosable: true
+				});
+			});
+	};
+
+	const handleUpdateTeacher: SubmitHandler<any> = (formData) => {
+		setLoading(true);
+		updateUser(formData)
+			.then(() => {
+				onClose();
+				setLoading(false);
+				window.location.reload();
+				toast({
+					title: `Professor(a) editado com sucesso.`,
+					status: 'success',
+					isClosable: true
+				});
+			})
+			.catch((error) => {
+				setLoading(false);
+				if (!error.response) return;
+				toast({
+					title: `Não foi possível editar professor(a).`,
+					status: 'error',
+					isClosable: true
+				});
+			});
+	};
+
+	const deleteUser = (id: string) => {
+		setLoading(true);
+		client
+			.post(`/v1/user/${id}/inactivate`)
+			.then(() => {
+				setLoading(false);
+				window.location.reload();
+				toast({
+					title: `Professor(a) desabilitado.`,
+					status: 'success',
+					isClosable: true
+				});
+			})
+			.catch((error: any) => {
+				if (!error.response) return;
+				setLoading(false);
+				toast({
+					title: `Não foi possível desabilitar professor.`,
+					status: 'error',
+					isClosable: true
+				});
+			});
+	};
 
 	return (
 		<SidebarWithHeader>
@@ -88,7 +205,12 @@ export default function Alunos() {
 						<InputLeftElement pointerEvents="none" color={'gray.300'}>
 							<FaSearch />
 						</InputLeftElement>
-						<Input type="tel" placeholder="Buscar Professores" />
+						<Input
+							type="tel"
+							placeholder="Buscar Professores"
+							onChange={(e) => setSearch(e.target.value)}
+							value={search}
+						/>
 						<Button leftIcon={<FaPlus />} colorScheme="teal" variant="solid" onClick={onOpen}>
 							Novo
 						</Button>
@@ -117,92 +239,153 @@ export default function Alunos() {
 						</Thead>
 						<Tbody>
 							{professores.map((professor, index) => {
-								return (
-									<Tr key={index}>
-										<Td>
-											<Flex gap={'10px'} alignItems={'center'}>
-												<Avatar
-													size="sm"
-													name={professor.nome + ' ' + professor.sobrenome}
-													src={professor.avatarUrl}
-												/>
-												{professor.nome + ' ' + professor.sobrenome}
-											</Flex>
-										</Td>
-										<Td>{professor.cpf}</Td>
-										<Td>{professor.email}</Td>
-										<Td>
-											{professor.ativo ? (
-												<Badge colorScheme="green">ATIVO</Badge>
-											) : (
-												<Badge colorScheme="red">INATIVO</Badge>
-											)}
-										</Td>
-										<Td>
-											<Flex gap={'10px'}>
-												<IconButton
-													icon={<FaPencilAlt />}
-													colorScheme="yellow"
-													variant="solid"
-													aria-label=""
-												/>
-												<IconButton
-													icon={<FaTrashAlt />}
-													colorScheme="red"
-													variant="solid"
-													aria-label=""
-												/>
-											</Flex>
-										</Td>
-									</Tr>
-								);
+								// @ts-ignore
+								if (
+									Object.values(professor)
+										.map(
+											(variavel) =>
+												typeof variavel === 'boolean'
+													? variavel ? 'ativo' : 'desabilitado'
+													: variavel
+										)
+										.reduce((a, b) => (b = a + ' ' + b))
+										.toLowerCase()
+										.includes(search.toLowerCase())
+								)
+									return (
+										<Tr key={index}>
+											<Td>
+												<Flex gap={'10px'} alignItems={'center'}>
+													<Avatar
+														size="sm"
+														name={professor.nome + ' ' + professor.sobrenome}
+														src={professor.avatarUrl}
+													/>
+													{professor.nome + ' ' + professor.sobrenome}
+												</Flex>
+											</Td>
+											<Td>{professor.cpf}</Td>
+											<Td>{professor.email}</Td>
+											<Td>
+												{professor.ativo ? (
+													<Badge colorScheme="green">ATIVO</Badge>
+												) : (
+													<Badge colorScheme="red">DESABILITADO</Badge>
+												)}
+											</Td>
+											<Td>
+												<Flex gap={'10px'}>
+													<IconButton
+														icon={<FaPencilAlt />}
+														colorScheme="yellow"
+														variant="solid"
+														aria-label=""
+														onClick={() => {
+															setEditingProfCPF(professor.cpf);
+															onOpen();
+														}}
+													/>
+													<IconButton
+														icon={<FaTrashAlt />}
+														colorScheme="red"
+														variant="solid"
+														aria-label=""
+														onClick={() => deleteUser(professor.id)}
+													/>
+												</Flex>
+											</Td>
+										</Tr>
+									);
 							})}
 						</Tbody>
 					</Table>
 				</TableContainer>
 			)}
 
-			<Modal onClose={onClose} isOpen={isOpen} isCentered>
+			<Modal
+				onClose={() => {
+					onClose();
+					setEditingProfCPF('');
+				}}
+				isOpen={isOpen}
+				isCentered
+			>
 				<ModalOverlay />
-				<ModalContent>
-					<ModalHeader>Adicionar novo professor</ModalHeader>
-					<ModalCloseButton />
-					<ModalBody>
-						<Flex flexDir={'column'} gap={'15px'}>
-							<Flex gap={'15px'}>
-								<Box>
-									<Text>Nome</Text>
-									<Input placeholder="Nome" />
-								</Box>
-								<Box>
-									<Text>Sobrenome</Text>
-									<Input placeholder="Sobrenome" />
-								</Box>
+				<form onSubmit={handleSubmit(editingProf ? handleUpdateTeacher : handleAddTeacher)}>
+					<ModalContent>
+						<ModalHeader>{`${editingProf ? 'Editar' : 'Adicionar novo'} professor`}</ModalHeader>
+						<ModalCloseButton />
+						<ModalBody>
+							<Flex flexDir={'column'} gap={'15px'}>
+								<Flex gap={'15px'}>
+									<Controller
+										name="nome"
+										control={control}
+										rules={{ required: true }}
+										render={({ field }) => (
+											<Box>
+												<Text>Nome</Text>
+												<Input placeholder="Nome" required={true} {...field} />
+											</Box>
+										)}
+									/>
+									<Controller
+										name="sobrenome"
+										control={control}
+										rules={{ required: true }}
+										render={({ field }) => (
+											<Box>
+												<Text>Sobrenome</Text>
+												<Input placeholder="Sobrenome" required={true} {...field} />
+											</Box>
+										)}
+									/>
+								</Flex>
+
+								<Controller
+									name="cpf"
+									control={control}
+									rules={{ required: true }}
+									render={({ field }) => (
+										<Box>
+											<Text>Cpf</Text>
+											<Input placeholder="Cpf" required={true} {...field} />
+										</Box>
+									)}
+								/>
+
+								<Controller
+									name="email"
+									control={control}
+									rules={{ required: true }}
+									render={({ field }) => (
+										<Box>
+											<Text>Email</Text>
+											<Input placeholder="Email" required={true} {...field} />
+										</Box>
+									)}
+								/>
+								<Controller
+									name="senha"
+									control={control}
+									rules={{ required: true }}
+									render={({ field }) => (
+										<Box>
+											<Text>Senha</Text>
+											<Input placeholder="Senha" required={true} {...field} />
+										</Box>
+									)}
+								/>
 							</Flex>
-
-							<Box>
-								<Text>Cpf</Text>
-								<Input placeholder="Cpf" />
-							</Box>
-
-							<Box>
-								<Text>Email</Text>
-								<Input placeholder="Email" />
-							</Box>
-
-							<Box>
-								<Text>Senha</Text>
-								<Input placeholder="Senha" />
-							</Box>
-						</Flex>
-					</ModalBody>
-					<ModalFooter gap={'15px'}>
-						<Button onClick={onClose}>Fechar</Button>
-						<Button variant={'solid'} background={'green.200'} onClick={onClose}>
-							Salvar
-						</Button>
-					</ModalFooter>
-				</ModalContent>
+						</ModalBody>
+						<ModalFooter gap={'15px'}>
+							<Button onClick={onClose}>Fechar</Button>
+							<Button variant={'solid'} background={'green.200'} type="submit">
+								Salvar
+							</Button>
+						</ModalFooter>
+					</ModalContent>
+				</form>
 			</Modal>
 		</SidebarWithHeader>
 	);
