@@ -1,4 +1,4 @@
-import SidebarWithHeader from '@/components/NavBar';
+import SidebarWithHeader from '@/components/SideBar';
 import {
 	Breadcrumb,
 	BreadcrumbItem,

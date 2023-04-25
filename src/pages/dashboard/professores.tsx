@@ -1,4 +1,4 @@
-import SidebarWithHeader from '@/components/NavBar';
+import SidebarWithHeader from '@/components/SideBar';
 import { listarAlunos, listarProfessores } from '@/services/api';
 import {
 	Avatar,

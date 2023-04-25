@@ -12,7 +12,8 @@ import {
 	Image,
 	useToast,
 	InputRightElement,
-	InputGroup
+	InputGroup,
+	Avatar
 } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import { useContext, useState } from 'react';
@@ -47,7 +48,7 @@ export default function Login() {
 						if (decoded) {
 							setUser(decoded);
 							if (decoded.userType === 'ALUNO') {
-								router.push('/portal/home');
+								router.push('/portal');
 							} else {
 								router.push('/dashboard');
 							}
@@ -83,8 +84,14 @@ export default function Login() {
 	return (
 		<Stack minH={'100vh'} direction={{ base: 'column', md: 'row' }}>
 			<Flex p={8} flex={1} align={'center'} justify={'center'}>
-				<Stack spacing={4} w={'full'} maxW={'md'}>
-					<Heading fontSize={'2xl'}>Bem vindo de volta 🤩</Heading>
+				<Stack spacing={4} w={'full'} maxW={'md'} align={'center'} justify={'center'}>
+					<Avatar
+						size={'xl'}
+						src={
+							'https://firebasestorage.googleapis.com/v0/b/projetcs-storage.appspot.com/o/windfall%2FWhatsApp%20Image%202023-03-29%20at%2014.04.46.jpeg?alt=media&token=1095f376-9566-4936-99c3-5eb9e3c1a541'
+						}
+					/>
+					<Heading fontSize={'2xl'}>Windfall English Institute 🤩</Heading>
 					<FormControl id="email">
 						<FormLabel>Seu email</FormLabel>
 						<Input
