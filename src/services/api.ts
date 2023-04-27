@@ -1,6 +1,25 @@
 import { client } from "./client";
 
-type UserType = {
+type ProfessorType = {
+  nome: string;
+  sobrenome: string;
+  cpf: string;
+  email: string;
+  senha: string;
+  ativo: true;
+};
+
+type AlunoType = {
+  nome: string;
+  sobrenome: string;
+  cpf: string;
+  email: string;
+  senha: string;
+  ativo: true;
+  professorId: string;
+};
+
+type AulaType = {
   nome: string;
   sobrenome: string;
   cpf: string;
@@ -14,26 +33,38 @@ type AuthType = {
   password: string;
 };
 
-export const adicionarProfessor = async (usuario: UserType) => {
-  return await client.post("/v1/user/professor", usuario);
+export const adicionarProfessor = async (usuario: ProfessorType) => {
+  return await client.post("/v1/professor", usuario);
 };
 
-export const adicionarAluno = async (usuario: UserType) => {
-  return await client.post("/v1/user/aluno", usuario);
+export const adicionarAluno = async (usuario: AlunoType) => {
+  return await client.post("/v1/aluno", usuario);
+};
+
+export const adicionarAula = async (aula: AulaType) => {
+  return await client.post("/v1/aula", aula);
 };
 
 export const listarAlunos = async () => {
-  return await client.get("/v1/user/alunos");
+  return await client.get("/v1/aluno");
 };
 
 export const listarProfessores = async () => {
-  return await client.get("/v1/user/professores");
+  return await client.get("/v1/professor");
+};
+
+export const listarAulas = async () => {
+  return await client.get("/v1/aula");
 };
 
 export const auth = async (auth: AuthType) => {
   return await client.post("/v1/auth/login", auth);
 };
 
-export const updateUser = async (usuario: UserType) => {
-  return await client.post(`/v1/user/update/${usuario.email}`, usuario);
+export const updateProfessor = async (usuario: ProfessorType) => {
+  return await client.post(`/v1/professor/update/${usuario.email}`, usuario);
+};
+
+export const updateAluno = async (usuario: AlunoType) => {
+  return await client.post(`/v1/aluno/update/${usuario.email}`, usuario);
 };

@@ -1,5 +1,5 @@
 import SidebarWithHeader from "@/components/SideBar";
-import { adicionarAluno, listarAlunos, updateUser } from "@/services/api";
+import { adicionarAluno, listarAlunos, updateAluno } from "@/services/api";
 import {
   Avatar,
   Badge,
@@ -39,26 +39,55 @@ import { useEffect, useMemo, useState } from "react";
 import { FaSearch, FaPlus, FaPencilAlt, FaTrashAlt } from "react-icons/fa";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { client } from "@/services/client";
+import userAuth from "@/hooks/useAuth";
 
 type AlunosType = {
   nome: string;
-  avatarUrl: string;
   sobrenome: string;
   cpf: string;
   email: string;
-  ativo: true;
   id: string;
   senha: string;
+  user: {
+    ativo: true;
+    avatarUrl: string;
+  };
+  userId: string;
+};
+
+type AlunosTypePost = {
+  nome: string;
+  sobrenome: string;
+  cpf: string;
+  email: string;
+  id: string;
+  senha: string;
+  ativo: boolean;
+  professorId: string | undefined;
+};
+
+type AlunosNormalizadoType = {
+  nome: string;
+  sobrenome: string;
+  cpf: string;
+  email: string;
+  id: string;
+  senha: string;
+  ativo: true;
+  avatarUrl: string;
+  userId: string;
 };
 
 export default function Alunos() {
+  const { user } = userAuth();
+
   const {
     formState: { errors },
     control,
     handleSubmit,
     watch,
     setValue,
-  } = useForm<AlunosType>({
+  } = useForm<AlunosTypePost>({
     defaultValues: {
       nome: "",
       sobrenome: "",
@@ -66,6 +95,7 @@ export default function Alunos() {
       email: "",
       senha: "",
       ativo: true,
+      professorId: user?.sub,
     },
   });
 
@@ -118,6 +148,7 @@ export default function Alunos() {
   }, [editingAluno, setValue]);
 
   const handleAddAluno: SubmitHandler<any> = (formData) => {
+    formData.professorId = user?.sub;
     setLoading(true);
     adicionarAluno(formData)
       .then(() => {
@@ -143,7 +174,7 @@ export default function Alunos() {
 
   const handleUpdateAluno: SubmitHandler<any> = (formData) => {
     setLoading(true);
-    updateUser(formData)
+    updateAluno(formData)
       .then(() => {
         onClose();
         setEditingAlunoCPF("");
@@ -166,10 +197,10 @@ export default function Alunos() {
       });
   };
 
-  const deleteUser = (id: string) => {
+  const deleteUser = (id: string, value: boolean) => {
     setLoading(true);
     client
-      .post(`/v1/user/${id}/inactivate`)
+      .post(`/v1/aluno/${id}/block/${value}`)
       .then(() => {
         window.location.reload();
         setLoading(false);
@@ -255,15 +286,26 @@ export default function Alunos() {
             </Thead>
             <Tbody>
               {alunos.map((aluno, index) => {
+                var alunosNormalizado: AlunosNormalizadoType = {
+                  ativo: aluno.user.ativo,
+                  avatarUrl: aluno.user.avatarUrl,
+                  cpf: aluno.cpf,
+                  email: aluno.email,
+                  id: aluno.id,
+                  nome: aluno.nome,
+                  senha: aluno.senha,
+                  sobrenome: aluno.sobrenome,
+                  userId: aluno.userId,
+                };
                 // @ts-ignore
                 if (
-                  Object.values(aluno)
-                    .map((variavel) =>
-                      typeof variavel === "boolean"
-                        ? variavel
+                  Object.values(alunosNormalizado)
+                    .map((item) =>
+                      typeof item === "boolean"
+                        ? item
                           ? "ativo"
                           : "desabilitado"
-                        : variavel
+                        : item
                     )
                     .reduce((a, b) => (b = a + " " + b))
                     .toLowerCase()
@@ -276,7 +318,7 @@ export default function Alunos() {
                           <Avatar
                             size="sm"
                             name={aluno.nome + " " + aluno.sobrenome}
-                            src={aluno.avatarUrl}
+                            src={aluno.user.avatarUrl}
                           />
                           {aluno.nome + " " + aluno.sobrenome}
                         </Flex>
@@ -284,7 +326,7 @@ export default function Alunos() {
                       <Td>{aluno.cpf}</Td>
                       <Td>{aluno.email}</Td>
                       <Td>
-                        {aluno.ativo ? (
+                        {aluno.user.ativo ? (
                           <Badge colorScheme="green">ATIVO</Badge>
                         ) : (
                           <Badge colorScheme="red">DESABILITADO</Badge>
@@ -307,7 +349,9 @@ export default function Alunos() {
                             colorScheme="red"
                             variant="solid"
                             aria-label=""
-                            onClick={() => deleteUser(aluno.id)}
+                            onClick={() =>
+                              deleteUser(aluno.userId, !aluno.user.ativo)
+                            }
                           />
                         </Flex>
                       </Td>
@@ -398,15 +442,15 @@ export default function Alunos() {
                   render={({ field }) => (
                     <Box>
                       <Text>Senha</Text>
-                      <Input placeholder="Senha" required={true} {...field} />
+                      <Input
+                        placeholder="Senha"
+                        required={true}
+                        type="password"
+                        {...field}
+                      />
                     </Box>
                   )}
                 />
-
-                {/* <Box>
-                  <Text>Foto de perfil</Text>
-                  <Input type="file" />
-                </Box> */}
               </Flex>
             </ModalBody>
             <ModalFooter gap={"15px"}>

@@ -1,9 +1,8 @@
 import SidebarWithHeader from "@/components/SideBar";
 import {
-  listarAlunos,
   listarProfessores,
   adicionarProfessor,
-  updateUser,
+  updateProfessor,
 } from "@/services/api";
 import {
   Avatar,
@@ -47,13 +46,37 @@ import { client } from "@/services/client";
 
 type ProfessorType = {
   nome: string;
-  avatarUrl: string;
   sobrenome: string;
   cpf: string;
   email: string;
-  ativo: true;
   id: string;
   senha: string;
+  user: {
+    ativo: true;
+    avatarUrl: string;
+  };
+  userId: string;
+};
+
+type ProfessorTypePost = {
+  nome: string;
+  sobrenome: string;
+  cpf: string;
+  email: string;
+  id: string;
+  senha: string;
+  ativo: boolean;
+};
+
+type ProfessorNormalizadoType = {
+  nome: string;
+  sobrenome: string;
+  cpf: string;
+  email: string;
+  id: string;
+  senha: string;
+  ativo: true;
+  avatarUrl: string;
 };
 
 export default function Alunos() {
@@ -63,7 +86,7 @@ export default function Alunos() {
     handleSubmit,
     watch,
     setValue,
-  } = useForm<ProfessorType>({
+  } = useForm<ProfessorTypePost>({
     defaultValues: {
       nome: "",
       sobrenome: "",
@@ -148,7 +171,7 @@ export default function Alunos() {
 
   const handleUpdateTeacher: SubmitHandler<any> = (formData) => {
     setLoading(true);
-    updateUser(formData)
+    updateProfessor(formData)
       .then(() => {
         onClose();
         setEditingProfCPF("");
@@ -171,10 +194,10 @@ export default function Alunos() {
       });
   };
 
-  const deleteUser = (id: string) => {
+  const deleteUser = (id: string, value: boolean) => {
     setLoading(true);
     client
-      .post(`/v1/user/${id}/inactivate`)
+      .post(`/v1/professor/${id}/block/${value}`)
       .then(() => {
         setLoading(false);
         window.location.reload();
@@ -260,9 +283,19 @@ export default function Alunos() {
             </Thead>
             <Tbody>
               {professores.map((professor, index) => {
+                var professoreNormalizado: ProfessorNormalizadoType = {
+                  ativo: professor.user.ativo,
+                  avatarUrl: professor.user.avatarUrl,
+                  cpf: professor.cpf,
+                  email: professor.email,
+                  id: professor.id,
+                  nome: professor.nome,
+                  senha: professor.senha,
+                  sobrenome: professor.sobrenome,
+                };
                 // @ts-ignore
                 if (
-                  Object.values(professor)
+                  Object.values(professoreNormalizado)
                     .map((variavel) =>
                       typeof variavel === "boolean"
                         ? variavel
@@ -281,7 +314,7 @@ export default function Alunos() {
                           <Avatar
                             size="sm"
                             name={professor.nome + " " + professor.sobrenome}
-                            src={professor.avatarUrl}
+                            src={professor.user.avatarUrl}
                           />
                           {professor.nome + " " + professor.sobrenome}
                         </Flex>
@@ -289,7 +322,7 @@ export default function Alunos() {
                       <Td>{professor.cpf}</Td>
                       <Td>{professor.email}</Td>
                       <Td>
-                        {professor.ativo ? (
+                        {professor.user.ativo ? (
                           <Badge colorScheme="green">ATIVO</Badge>
                         ) : (
                           <Badge colorScheme="red">DESABILITADO</Badge>
@@ -312,7 +345,12 @@ export default function Alunos() {
                             colorScheme="red"
                             variant="solid"
                             aria-label=""
-                            onClick={() => deleteUser(professor.id)}
+                            onClick={() =>
+                              deleteUser(
+                                professor.userId,
+                                !professor.user.ativo
+                              )
+                            }
                           />
                         </Flex>
                       </Td>
