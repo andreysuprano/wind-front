@@ -22,11 +22,10 @@ import {
 	MenuItem,
 	MenuList
 } from '@chakra-ui/react';
-import { FiMenu, FiBell, FiChevronDown } from 'react-icons/fi';
+import { FiMenu, FiChevronDown } from 'react-icons/fi';
 import { FaUserTie, FaUserGraduate, FaBook, FaChalkboardTeacher, FaHome } from 'react-icons/fa';
 import { IconType } from 'react-icons';
 import { ReactText } from 'react';
-import ThemeSwitcher from '../ThemeSwitcher';
 import useAuth from '@/hooks/useAuth';
 import { ModalPerfil } from '../ModalPerfil';
 
@@ -140,7 +139,7 @@ const NavItem = ({ icon, children, href, ...rest }: NavItemProps) => {
 				role="group"
 				cursor="pointer"
 				_hover={{
-					bg: 'cyan.400',
+					bg: '#254C80',
 					color: 'white'
 				}}
 				{...rest}

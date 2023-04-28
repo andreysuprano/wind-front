@@ -2,7 +2,6 @@ import SidebarWithHeader from "@/components/SideBar";
 import { adicionarAluno, listarAlunos, updateAluno } from "@/services/api";
 import {
   Avatar,
-  Badge,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -21,10 +20,10 @@ import {
   useDisclosure,
   Text,
   Box,
-  IconButton,
   Stack,
   Skeleton,
   useToast,
+  Switch,
 } from "@chakra-ui/react";
 import {
   Table,
@@ -81,6 +80,7 @@ type AlunosNormalizadoType = {
 export default function Alunos() {
   const { user } = userAuth();
 
+ 
   const {
     formState: { errors },
     control,
@@ -102,9 +102,11 @@ export default function Alunos() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [alunos, setAlunos] = useState<AlunosType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [updateData, setUpdateData] = useState(false);
   const [search, setSearch] = useState("");
   const toast = useToast();
   const [editingAlunoCPF, setEditingAlunoCPF] = useState("");
+
   const editingAluno = useMemo(
     () => alunos.find((aluno) => aluno.cpf === editingAlunoCPF),
     [alunos, editingAlunoCPF]
@@ -134,6 +136,13 @@ export default function Alunos() {
   }, []);
 
   useEffect(() => {
+    if(updateData){
+      buscarAlunos();
+      setUpdateData(false);
+    }
+  }, [updateData]);
+
+  useEffect(() => {
     if (editingAluno) {
       setValue("nome", editingAluno.nome);
       setValue("sobrenome", editingAluno.sobrenome);
@@ -154,7 +163,7 @@ export default function Alunos() {
       .then(() => {
         onClose();
         setLoading(false);
-        window.location.reload();
+        setUpdateData(true);
         toast({
           title: `Aluno(a) adicionado com sucesso.`,
           status: "success",
@@ -179,7 +188,7 @@ export default function Alunos() {
         onClose();
         setEditingAlunoCPF("");
         setLoading(false);
-        window.location.reload();
+        setUpdateData(true);
         toast({
           title: `Aluno(a) editado com sucesso.`,
           status: "success",
@@ -198,23 +207,24 @@ export default function Alunos() {
   };
 
   const deleteUser = (id: string, value: boolean) => {
+    const result = value ? 'habilitado' : 'desabilitado';
+    const action = value ? 'habilitar' : 'desabilitar';
     setLoading(true);
     client
       .post(`/v1/aluno/${id}/block/${value}`)
       .then(() => {
-        window.location.reload();
+        setUpdateData(true);
         setLoading(false);
         toast({
-          title: `Aluno(a) desabilitado.`,
+          title: `Aluno(a) ${result}`,
           status: "success",
           isClosable: true,
         });
       })
-      .catch((error: any) => {
-        if (!error.response) return;
+      .catch(() => {
         setLoading(false);
         toast({
-          title: `Não foi possível desabilitar aluno.`,
+          title: `Não foi possível ${action} aluno.`,
           status: "error",
           isClosable: true,
         });
@@ -258,6 +268,7 @@ export default function Alunos() {
               colorScheme="teal"
               variant="solid"
               onClick={onOpen}
+              bgColor={'#254C80'}
             >
               Novo
             </Button>
@@ -273,15 +284,14 @@ export default function Alunos() {
           <Skeleton height="20px" />
         </Stack>
       ) : (
-        <TableContainer backgroundColor={"#FFF"} borderRadius="10px">
+        <TableContainer backgroundColor={"#FFF"} borderRadius="10px" overflowY={'scroll'} maxH={'70vh'}>
           <Table variant="simple">
-            <Thead>
+            <Thead position="sticky" top={0} zIndex="docked" bgColor={'#fff'}>
               <Tr>
                 <Th>Nome</Th>
                 <Th>CPF</Th>
                 <Th>Email</Th>
                 <Th>Status</Th>
-                <Th> Alunos </Th>
               </Tr>
             </Thead>
             <Tbody>
@@ -303,7 +313,7 @@ export default function Alunos() {
                     .map((item) =>
                       typeof item === "boolean"
                         ? item
-                          ? "ativo"
+                          ? "habilitado"
                           : "desabilitado"
                         : item
                     )
@@ -312,8 +322,11 @@ export default function Alunos() {
                     .includes(search.toLowerCase())
                 )
                   return (
-                    <Tr key={index}>
-                      <Td>
+                    <Tr key={index} _hover={{ bgColor: 'gray.100', cursor: 'pointer' }}>
+                      <Td onClick={() => {
+                      setEditingAlunoCPF(aluno.cpf);
+                      onOpen();
+                    }}>
                         <Flex gap={"10px"} alignItems={"center"}>
                           <Avatar
                             size="sm"
@@ -323,37 +336,18 @@ export default function Alunos() {
                           {aluno.nome + " " + aluno.sobrenome}
                         </Flex>
                       </Td>
-                      <Td>{aluno.cpf}</Td>
-                      <Td>{aluno.email}</Td>
+                      <Td onClick={() => {
+                      setEditingAlunoCPF(aluno.cpf);
+                      onOpen();
+                    }}>{aluno.cpf}</Td>
+                      <Td onClick={() => {
+                      setEditingAlunoCPF(aluno.cpf);
+                      onOpen();
+                    }}>{aluno.email}</Td>
                       <Td>
-                        {aluno.user.ativo ? (
-                          <Badge colorScheme="green">ATIVO</Badge>
-                        ) : (
-                          <Badge colorScheme="red">DESABILITADO</Badge>
-                        )}
-                      </Td>
-                      <Td>
-                        <Flex gap={"10px"}>
-                          <IconButton
-                            icon={<FaPencilAlt />}
-                            colorScheme="yellow"
-                            variant="solid"
-                            aria-label=""
-                            onClick={() => {
-                              setEditingAlunoCPF(aluno.cpf);
-                              onOpen();
-                            }}
-                          />
-                          <IconButton
-                            icon={<FaTrashAlt />}
-                            colorScheme="red"
-                            variant="solid"
-                            aria-label=""
-                            onClick={() =>
-                              deleteUser(aluno.userId, !aluno.user.ativo)
-                            }
-                          />
-                        </Flex>
+                        <Stack align='center' direction='row'>
+                          <Switch size='lg'  isChecked={aluno.user.ativo} onChange={()=>deleteUser(aluno.userId, !aluno.user.ativo )}/>
+                        </Stack>
                       </Td>
                     </Tr>
                   );
@@ -462,7 +456,7 @@ export default function Alunos() {
               >
                 Fechar
               </Button>
-              <Button variant={"solid"} background={"green.200"} type="submit">
+              <Button variant={"solid"} background={"#254C80"} color={'#FFF'} type="submit" _hover={{bgColor:'#254D80'}}>
                 Salvar
               </Button>
             </ModalFooter>
