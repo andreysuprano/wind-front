@@ -204,9 +204,7 @@ export default function Alunos() {
 			});
 	};
 
-	const handleEdit = () => {
-		onOpen();
-	};
+	const handleEdit = () => {};
 
 	return (
 		<SidebarWithHeader>
@@ -240,7 +238,7 @@ export default function Alunos() {
 							onChange={(e) => setSearch(e.target.value)}
 							value={search}
 						/>
-						<Button leftIcon={<FaPlus />} colorScheme="blue" variant="solid" onClick={onOpen}>
+						<Button leftIcon={<FaPlus />} colorScheme="teal" variant="solid" onClick={onOpen}>
 							Novo
 						</Button>
 					</InputGroup>
@@ -294,7 +292,10 @@ export default function Alunos() {
 										<Tr
 											key={index}
 											_hover={{ bgColor: 'gray.100', cursor: 'pointer' }}
-											onClick={handleEdit}
+											onClick={() => {
+												setEditingProfCPF(professor.cpf);
+												onOpen();
+											}}
 										>
 											<Td>
 												<Flex gap={'10px'} alignItems={'center'}>
