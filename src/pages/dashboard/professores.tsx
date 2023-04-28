@@ -240,7 +240,7 @@ export default function Alunos() {
 							onChange={(e) => setSearch(e.target.value)}
 							value={search}
 						/>
-						<Button leftIcon={<FaPlus />} colorScheme="teal" variant="solid" onClick={onOpen}>
+						<Button leftIcon={<FaPlus />} colorScheme="blue" variant="solid" onClick={onOpen}>
 							Novo
 						</Button>
 					</InputGroup>

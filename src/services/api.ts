@@ -68,3 +68,7 @@ export const updateProfessor = async (usuario: ProfessorType) => {
 export const updateAluno = async (usuario: AlunoType) => {
 	return await client.post(`/v1/aluno/update/${usuario.email}`, usuario);
 };
+
+export const listarMateriais = async () => {
+	return await client.get('/v1/material');
+};

@@ -265,10 +265,9 @@ export default function Alunos() {
             />
             <Button
               leftIcon={<FaPlus />}
-              colorScheme="teal"
+              colorScheme="blue"
               variant="solid"
               onClick={onOpen}
-              bgColor={'#254C80'}
             >
               Novo
             </Button>
