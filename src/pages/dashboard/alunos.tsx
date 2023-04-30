@@ -60,7 +60,7 @@ type AlunosTypePost = {
   cpf: string;
   email: string;
   id: string;
-  senha: string;
+  senha?: string;
   ativo: boolean;
   professorId: string | undefined;
 };
@@ -80,12 +80,10 @@ type AlunosNormalizadoType = {
 export default function Alunos() {
   const { user } = userAuth();
 
- 
   const {
     formState: { errors },
     control,
     handleSubmit,
-    watch,
     setValue,
   } = useForm<AlunosTypePost>({
     defaultValues: {
@@ -136,10 +134,11 @@ export default function Alunos() {
   }, []);
 
   useEffect(() => {
-    if(updateData){
+    if (updateData) {
       buscarAlunos();
       setUpdateData(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [updateData]);
 
   useEffect(() => {
@@ -207,8 +206,8 @@ export default function Alunos() {
   };
 
   const deleteUser = (id: string, value: boolean) => {
-    const result = value ? 'habilitado' : 'desabilitado';
-    const action = value ? 'habilitar' : 'desabilitar';
+    const result = value ? "habilitado" : "desabilitado";
+    const action = value ? "habilitar" : "desabilitar";
     setLoading(true);
     client
       .post(`/v1/aluno/${id}/block/${value}`)
@@ -221,7 +220,8 @@ export default function Alunos() {
           isClosable: true,
         });
       })
-      .catch(() => {
+      .catch((error) => {
+        if (!error.response) return;
         setLoading(false);
         toast({
           title: `Não foi possível ${action} aluno.`,
@@ -283,9 +283,14 @@ export default function Alunos() {
           <Skeleton height="20px" />
         </Stack>
       ) : (
-        <TableContainer backgroundColor={"#FFF"} borderRadius="10px" overflowY={'scroll'} maxH={'70vh'}>
+        <TableContainer
+          backgroundColor={"#FFF"}
+          borderRadius="10px"
+          overflowY={"scroll"}
+          maxH={"70vh"}
+        >
           <Table variant="simple">
-            <Thead position="sticky" top={0} zIndex="docked" bgColor={'#fff'}>
+            <Thead position="sticky" top={0} zIndex="docked" bgColor={"#fff"}>
               <Tr>
                 <Th>Nome</Th>
                 <Th>CPF</Th>
@@ -321,11 +326,16 @@ export default function Alunos() {
                     .includes(search.toLowerCase())
                 )
                   return (
-                    <Tr key={index} _hover={{ bgColor: 'gray.100', cursor: 'pointer' }}>
-                      <Td onClick={() => {
-                      setEditingAlunoCPF(aluno.cpf);
-                      onOpen();
-                    }}>
+                    <Tr
+                      key={index}
+                      _hover={{ bgColor: "gray.100", cursor: "pointer" }}
+                    >
+                      <Td
+                        onClick={() => {
+                          setEditingAlunoCPF(aluno.cpf);
+                          onOpen();
+                        }}
+                      >
                         <Flex gap={"10px"} alignItems={"center"}>
                           <Avatar
                             size="sm"
@@ -335,17 +345,31 @@ export default function Alunos() {
                           {aluno.nome + " " + aluno.sobrenome}
                         </Flex>
                       </Td>
-                      <Td onClick={() => {
-                      setEditingAlunoCPF(aluno.cpf);
-                      onOpen();
-                    }}>{aluno.cpf}</Td>
-                      <Td onClick={() => {
-                      setEditingAlunoCPF(aluno.cpf);
-                      onOpen();
-                    }}>{aluno.email}</Td>
+                      <Td
+                        onClick={() => {
+                          setEditingAlunoCPF(aluno.cpf);
+                          onOpen();
+                        }}
+                      >
+                        {aluno.cpf}
+                      </Td>
+                      <Td
+                        onClick={() => {
+                          setEditingAlunoCPF(aluno.cpf);
+                          onOpen();
+                        }}
+                      >
+                        {aluno.email}
+                      </Td>
                       <Td>
-                        <Stack align='center' direction='row'>
-                          <Switch size='lg'  isChecked={aluno.user.ativo} onChange={()=>deleteUser(aluno.userId, !aluno.user.ativo )}/>
+                        <Stack align="center" direction="row">
+                          <Switch
+                            size="lg"
+                            isChecked={aluno.user.ativo}
+                            onChange={() =>
+                              deleteUser(aluno.userId, !aluno.user.ativo)
+                            }
+                          />
                         </Stack>
                       </Td>
                     </Tr>
@@ -428,22 +452,24 @@ export default function Alunos() {
                     </Box>
                   )}
                 />
-                <Controller
-                  name="senha"
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field }) => (
-                    <Box>
-                      <Text>Senha</Text>
-                      <Input
-                        placeholder="Senha"
-                        required={true}
-                        type="password"
-                        {...field}
-                      />
-                    </Box>
-                  )}
-                />
+                {!editingAluno && (
+                  <Controller
+                    name="senha"
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field }) => (
+                      <Box>
+                        <Text>Senha</Text>
+                        <Input
+                          placeholder="Senha"
+                          required={true}
+                          type="password"
+                          {...field}
+                        />
+                      </Box>
+                    )}
+                  />
+                )}
               </Flex>
             </ModalBody>
             <ModalFooter gap={"15px"}>
@@ -455,7 +481,13 @@ export default function Alunos() {
               >
                 Fechar
               </Button>
-              <Button variant={"solid"} background={"#254C80"} color={'#FFF'} type="submit" _hover={{bgColor:'#254D80'}}>
+              <Button
+                variant={"solid"}
+                background={"#254C80"}
+                color={"#FFF"}
+                type="submit"
+                _hover={{ bgColor: "#254D80" }}
+              >
                 Salvar
               </Button>
             </ModalFooter>
