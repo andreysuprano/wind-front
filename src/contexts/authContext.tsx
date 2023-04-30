@@ -23,40 +23,40 @@ export interface IUser {
 export const UserContext = createContext({} as UserContextType);
 
 function AuthContextProvider({ children }: UserContextProviderProps) {
-  const [user, setUser] = useState<IUser>();
-  const router = useRouter();
+	const [ user, setUser ] = useState<IUser>();
+	const router = useRouter();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
+	const validUser = async () => {
+		const token = localStorage.getItem('token');
 
-    if (token && !user) {
-      try {
-        const decoded = jwt.decode(token) as IUser;
-        if (decoded) {
-          setUser(decoded);
-        } else {
-          localStorage.removeItem("token");
-          router.push("/");
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    } else {
-      localStorage.removeItem("token");
-      router.push("/");
-    }
-  }, []);
+		if (token && !user) {
+			try {
+				const decoded = jwt.decode(token) as IUser;
+				if (decoded) {
+					setUser(decoded);
+				} else {
+					localStorage.removeItem('token');
+					router.push('/');
+				}
+			} catch (error) {
+				console.error(error);
+			}
+		} else {
+			localStorage.removeItem('token');
+			router.push('/');
+		}
+	};
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    router.push("/");
-  };
+	useEffect(() => {
+		validUser();
+	}, []);
 
-  return (
-    <UserContext.Provider value={{ user, setUser, logout }}>
-      {children}
-    </UserContext.Provider>
-  );
+	const logout = () => {
+		localStorage.removeItem('token');
+		router.push('/');
+	};
+
+	return <UserContext.Provider value={{ user, setUser, logout }}>{children}</UserContext.Provider>;
 }
 
 export default AuthContextProvider;
