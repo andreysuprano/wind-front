@@ -1,23 +1,23 @@
-import React, { createContext, ReactNode, useEffect, useState } from 'react';
-import jwt, { JwtPayload } from 'jsonwebtoken';
-import { useRouter } from 'next/router';
+import React, { createContext, ReactNode, useEffect, useState } from "react";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { useRouter } from "next/router";
 
 interface UserContextProviderProps {
-	children: ReactNode;
+  children: ReactNode;
 }
 
 interface UserContextType {
-	user?: IUser;
-	setUser: (user: IUser) => void;
-	logout: () => void;
+  user?: IUser;
+  setUser: (user: IUser) => void;
+  logout: () => void;
 }
 
 export interface IUser {
-	avatar: string;
-	name: string;
-	userType: string;
-	username: string;
-	sub: string;
+  avatar: string;
+  name: string;
+  userType: string;
+  username: string;
+  sub: string | undefined;
 }
 
 export const UserContext = createContext({} as UserContextType);

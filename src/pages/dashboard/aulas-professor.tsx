@@ -40,6 +40,7 @@ import { AiOutlineSelect, AiOutlineDown } from "react-icons/ai";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useEffect, useMemo, useState } from "react";
 import { adicionarAula, listarAulas, listarProfessores } from "@/services/api";
+import useAuth from "@/hooks/useAuth";
 
 interface AulasGet {
   id: string;
@@ -82,7 +83,7 @@ interface ProfessorGet {
   };
 }
 
-export default function Aulas() {
+export default function AulasProfessor() {
   const {
     formState: { errors },
     control,
@@ -98,7 +99,7 @@ export default function Aulas() {
       status: "",
     },
   });
-
+  const { user } = useAuth();
   const [search, setSearch] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState(false);
@@ -119,17 +120,16 @@ export default function Aulas() {
   }, []);
 
   useEffect(() => {
-    if (professorSelected != "") {
-      buscarAulas(professorSelected);
+    if (user?.sub !== undefined) {
+      buscarAulas(user?.sub);
       var result = professores.filter((prof) => prof.id == professorSelected);
       setProfessor(result[0]);
     }
-  }, [professorSelected]);
+  }, []);
 
   async function buscarAulas(professorId: string) {
-    setProfessorSelected(professorId);
     setLoading(true);
-    listarAulas(professorSelected)
+    listarAulas(professorId)
       .then((response) => {
         setLoading(false);
         setAulas(response.data);
@@ -209,27 +209,6 @@ export default function Aulas() {
           </Breadcrumb>
         </Flex>
         <Flex gap={"20px"}>
-          {!loadingProfessores ? (
-            <Select
-              onChange={(e) => {
-                setProfessorSelected(e.target.value);
-              }}
-            >
-              <option value="">Selecione o Professor</option>;
-              {professores.map((item, index) => {
-                return (
-                  <option
-                    value={item.id}
-                    key={index}
-                  >{`${item.nome} ${item.sobrenome}`}</option>
-                );
-              })}
-            </Select>
-          ) : (
-            <Stack>
-              <Skeleton height="40px" width={200} />
-            </Stack>
-          )}
           <InputGroup gap={"20px"}>
             <InputLeftElement pointerEvents="none" color={"gray.300"}>
               <FaSearch />
