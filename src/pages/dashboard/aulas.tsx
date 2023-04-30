@@ -25,11 +25,6 @@ import {
 	Skeleton,
 	Avatar,
 	Select,
-	Menu,
-	MenuList,
-	MenuButton,
-	MenuItem,
-	Image
 } from '@chakra-ui/react';
 import { Table, Thead, Tbody, Tr, Th, Td, TableContainer } from '@chakra-ui/react';
 import { FaSearch, FaPlus, FaTrashAlt, FaPencilAlt } from 'react-icons/fa';
@@ -108,9 +103,11 @@ export default function Aulas() {
 
 	useEffect(
 		() => {
-			buscarAulas(professorSelected);
-      var result = professores.filter(prof => prof.id == professorSelected);
-      setProfessor(result[0]);
+			if(professorSelected != ''){
+				buscarAulas(professorSelected);
+				var result = professores.filter(prof => prof.id == professorSelected);
+				setProfessor(result[0]);	
+			}
 		},
 		[ professorSelected ]
 	);
@@ -224,7 +221,7 @@ export default function Aulas() {
 							onChange={(e) => setSearch(e.target.value)}
 							value={search}
 						/>
-						<Button leftIcon={<FaPlus />} colorScheme="teal" variant="solid" onClick={onOpen}>
+						<Button leftIcon={<FaPlus />} colorScheme="blue" variant="solid" onClick={onOpen}>
 							Novo
 						</Button>
 					</InputGroup>
@@ -240,8 +237,10 @@ export default function Aulas() {
 				</Stack>
 			) : !aulas ? (
 				<Flex width={'100%'} height={'60%'} alignItems={'center'} justifyContent={'center'}>
-					<AiOutlineSelect />
-					<Text>Selecione um professor para buscar as aulas.</Text>
+					<Flex>
+						<AiOutlineSelect />
+						<Text>Selecione um professor para buscar as aulas.</Text>
+					</Flex>
 				</Flex>
 			) : (
 				<TableContainer backgroundColor={'#FFF'} borderRadius="10px">
@@ -256,7 +255,10 @@ export default function Aulas() {
 							</Tr>
 						</Thead>
 						<Tbody>
-							{aulas.map((item, index: number) => {
+							
+							{
+							aulas.length > 0? 
+							aulas.map((item, index: number) => {
 								const aula: AulasGetNormalized = {
 									alunoId: item.alunoId,
 									avatarUrl: item.aluno.avatarUrl,
@@ -310,7 +312,15 @@ export default function Aulas() {
 											</Td>
 										</Tr>
 									);
-							})}
+							})
+						:
+						<Td>
+							<Flex width={'100%'} height={'60%'} alignItems={'center'} justifyContent={'center'}>
+								<AiOutlineSelect />
+								<Text>Nenhum resultado encontrado.</Text>
+							</Flex>
+						</Td>
+						}
 						</Tbody>
 					</Table>
 				</TableContainer>

@@ -1,7 +1,7 @@
+import CardMaterial, { MaterialData } from '@/components/CardMaterial';
 import SidebarWithHeader from '@/components/SideBar';
+import { listarMateriais } from '@/services/api';
 import {
-	Avatar,
-	Badge,
 	Breadcrumb,
 	BreadcrumbItem,
 	BreadcrumbLink,
@@ -9,12 +9,27 @@ import {
 	Flex,
 	Input,
 	InputGroup,
-	InputLeftElement
+	InputLeftElement,
+	Skeleton
 } from '@chakra-ui/react';
-import { Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableContainer } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
 import { FaSearch, FaPlus } from 'react-icons/fa';
 
 export default function Materiais() {
+	const [ materiais, setMateriais ] = useState<MaterialData[]>([]);
+	const [ loading, setLoading ] = useState(true);
+
+	const buscarMateriais = async () => {
+		listarMateriais().then((res) => {
+			setLoading(false);
+			setMateriais(res.data);
+		});
+	};
+
+	useEffect(() => {
+		buscarMateriais();
+	});
+
 	return (
 		<SidebarWithHeader>
 			<Flex
@@ -41,67 +56,38 @@ export default function Materiais() {
 						<InputLeftElement pointerEvents="none" color={'gray.300'}>
 							<FaSearch />
 						</InputLeftElement>
-						<Input type="tel" placeholder="Buscar Alunos" />
-						<Button leftIcon={<FaPlus />} colorScheme="teal" variant="solid">
+						<Input type="tel" placeholder="Buscar Material" />
+						<Button leftIcon={<FaPlus />} colorScheme="blue" variant="solid">
 							Novo
 						</Button>
 					</InputGroup>
 				</Flex>
 			</Flex>
-
-			<TableContainer backgroundColor={'#FFF'} borderRadius="10px">
-				<Table variant="simple">
-					<Thead>
-						<Tr>
-							<Th>Nome</Th>
-							<Th>CPF</Th>
-							<Th>Email</Th>
-							<Th>Status</Th>
-						</Tr>
-					</Thead>
-					<Tbody>
-						<Tr>
-							<Td>
-								<Flex gap={'10px'} justifyContent={'center'} alignItems={'center'}>
-									<Avatar size="sm" name="Dan Abrahmov" src="https://bit.ly/dan-abramov" />
-									João Abramovich
-								</Flex>
-							</Td>
-							<Td>117.784.579-24</Td>
-							<Td>andsuprano@gmail.com</Td>
-							<Td>
-								<Badge colorScheme="green">ATIVO</Badge>
-							</Td>
-						</Tr>
-						<Tr>
-							<Td>
-								<Flex gap={'10px'} justifyContent={'center'} alignItems={'center'}>
-									<Avatar size="sm" name="Dan Abrahmov" src="https://bit.ly/dan-abramov" />
-									João Abramovich
-								</Flex>
-							</Td>
-							<Td>117.784.579-24</Td>
-							<Td>andsuprano@gmail.com</Td>
-							<Td>
-								<Badge colorScheme="green">ATIVO</Badge>
-							</Td>
-						</Tr>
-						<Tr>
-							<Td>
-								<Flex gap={'10px'} justifyContent={'center'} alignItems={'center'}>
-									<Avatar size="sm" name="Dan Abrahmov" src="https://bit.ly/dan-abramov" />
-									João Abramovich
-								</Flex>
-							</Td>
-							<Td>117.784.579-24</Td>
-							<Td>andsuprano@gmail.com</Td>
-							<Td>
-								<Badge colorScheme="green">ATIVO</Badge>
-							</Td>
-						</Tr>
-					</Tbody>
-				</Table>
-			</TableContainer>
+			{loading ? (
+				<Flex flexWrap="wrap" gap={'20px'}>
+					<Skeleton w="250px" height="300px" />
+					<Skeleton w="250px" height="300px" />
+					<Skeleton w="250px" height="300px" />
+					<Skeleton w="250px" height="300px" />
+					<Skeleton w="250px" height="300px" />
+					<Skeleton w="250px" height="300px" />
+				</Flex>
+			) : (
+				<Flex flexWrap="wrap">
+					{materiais.map((material, index) => {
+						return (
+							<CardMaterial
+								key={index}
+								thumbnail={material.thumbnail}
+								descricao={material.descricao}
+								driveUrl={material.driveUrl}
+								id={material.id}
+								nome={material.nome}
+							/>
+						);
+					})}
+				</Flex>
+			)}
 		</SidebarWithHeader>
 	);
 }
