@@ -57,6 +57,10 @@ export const listarAulas = async (professorId: string) => {
 	return await client.get(`/v1/aula/professor/${professorId}`);
 };
 
+export const listarAulasPorAluno = async (alunoId: any) => {
+	return await client.get(`/v1/aula/aluno/${alunoId}`);
+};
+
 export const auth = async (auth: AuthType) => {
 	return await client.post('/v1/auth/login', auth);
 };

@@ -1,7 +1,5 @@
 import {
   Box,
-  Flex,
-  Text,
   IconButton,
   Button,
   Stack,
@@ -15,6 +13,15 @@ import {
   useBreakpointValue,
   useDisclosure,
   Avatar,
+  HStack,
+  MenuButton,
+  Text,
+  VStack,
+  Flex,
+  MenuItem,
+  Menu,
+  MenuList,
+  MenuDivider
 } from '@chakra-ui/react';
 import {
   HamburgerIcon,
@@ -22,13 +29,19 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
 } from '@chakra-ui/icons';
+import { FiChevronDown } from 'react-icons/fi';
+import useAuth from '@/hooks/useAuth';
 
 const LOGO_WINDFALL = 'https://firebasestorage.googleapis.com/v0/b/projetcs-storage.appspot.com/o/windfall%2FWhatsApp%20Image%202023-03-29%20at%2014.04.46.jpeg?alt=media&token=1095f376-9566-4936-99c3-5eb9e3c1a541'
 
 
 export default function WithSubnavigation() {
-  const { isOpen, onToggle } = useDisclosure();
-
+  const { isOpen, onToggle, onOpen } = useDisclosure();
+  const modalPerfil = useDisclosure();
+  const {user, logout} = useAuth();
+  const handleLogout = () => {
+    logout();
+  }
   return (
     <Box>
       <Flex
@@ -71,34 +84,43 @@ export default function WithSubnavigation() {
           </Flex>
         </Flex>
 
-        <Stack
-          flex={{ base: 1, md: 0 }}
-          justify={'flex-end'}
-          direction={'row'}
-          spacing={6}>
-          <Button
-            as={'a'}
-            fontSize={'sm'}
-            fontWeight={400}
-            variant={'link'}
-            href={'#'}>
-            Sign In
-          </Button>
-          <Button
-            as={'a'}
-            display={{ base: 'none', md: 'inline-flex' }}
-            fontSize={'sm'}
-            fontWeight={600}
-            color={'white'}
-            bg={'pink.400'}
-            href={'#'}
-            _hover={{
-              bg: 'pink.300',
-            }}>
-            Sign Up
-          </Button>
-        </Stack>
-      </Flex>
+          <Flex alignItems={'center'}>
+          <HStack spacing={{ base: '0', md: '6' }}>
+            <Menu>
+              <MenuButton py={2} transition="all 0.3s" _focus={{ boxShadow: 'none' }}>
+                <HStack>
+                  <Avatar
+                    size={'sm'}
+                    src={user?.avatar}
+                  />
+                  <VStack
+                    display={{ base: 'none', md: 'flex' }}
+                    alignItems="flex-start"
+                    spacing="1px"
+                    ml="2"
+                  >
+                    <Text fontSize="sm">{user?.name}</Text>
+                    <Text fontSize="xs" color="gray.600">
+                      {user?.userType}
+                    </Text>
+                  </VStack>
+                  <Box display={{ base: 'none', md: 'flex' }}>
+                    <FiChevronDown />
+                  </Box>
+                </HStack>
+              </MenuButton>
+              <MenuList
+                bg={useColorModeValue('white', 'gray.900')}
+                borderColor={useColorModeValue('gray.200', 'gray.700')}
+              >
+                <MenuItem onClick={onOpen}>Perfil</MenuItem>
+                <MenuDivider />
+                <MenuItem onClick={handleLogout}>Sign out</MenuItem>
+              </MenuList>
+            </Menu>
+        </HStack>
+          </Flex>
+        </Flex>
 
       <Collapse in={isOpen} animateOpacity>
         <MobileNav />
@@ -260,41 +282,11 @@ interface NavItem {
 
 const NAV_ITEMS: Array<NavItem> = [
   {
-    label: 'Inspiration',
-    children: [
-      {
-        label: 'Explore Design Work',
-        subLabel: 'Trending Design to inspire you',
-        href: '#',
-      },
-      {
-        label: 'New & Noteworthy',
-        subLabel: 'Up-and-coming Designers',
-        href: '#',
-      },
-    ],
-  },
-  {
-    label: 'Find Work',
-    children: [
-      {
-        label: 'Job Board',
-        subLabel: 'Find your dream design job',
-        href: '#',
-      },
-      {
-        label: 'Freelance Projects',
-        subLabel: 'An exclusive list for contract work',
-        href: '#',
-      },
-    ],
-  },
-  {
-    label: 'Learn Design',
+    label: 'Aulas',
     href: '#',
   },
   {
-    label: 'Hire Designers',
+    label: 'Materiais',
     href: '#',
   },
 ];

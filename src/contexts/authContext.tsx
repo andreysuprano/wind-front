@@ -26,7 +26,7 @@ function AuthContextProvider({ children }: UserContextProviderProps) {
 	const [ user, setUser ] = useState<IUser>();
 	const router = useRouter();
 
-	useEffect(() => {
+	const validUser = async () => {
 		const token = localStorage.getItem('token');
 
 		if (token && !user) {
@@ -45,6 +45,10 @@ function AuthContextProvider({ children }: UserContextProviderProps) {
 			localStorage.removeItem('token');
 			router.push('/');
 		}
+	};
+
+	useEffect(() => {
+		validUser();
 	}, []);
 
 	const logout = () => {
