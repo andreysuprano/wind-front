@@ -9,6 +9,14 @@ type ProfessorType = {
   ativo: true;
 };
 
+type UserType = {
+  nome: string;
+  sobrenome: string;
+  cpf: string;
+  email: string;
+  senha: string;
+};
+
 type AlunoType = {
   nome: string;
   sobrenome: string;
@@ -79,6 +87,10 @@ export const listarMateriais = async () => {
 
 export const auth = async (auth: AuthType) => {
   return await client.post("/v1/auth/login", auth);
+};
+
+export const updateUsuario = async (usuario: UserType) => {
+  return await client.post(`/v1/user/update/${usuario.email}`, usuario);
 };
 
 export const updateProfessor = async (usuario: ProfessorType) => {
