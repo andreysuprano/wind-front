@@ -1,4 +1,6 @@
-import { IUser } from '@/contexts/authContext';
+import { IUser } from "@/contexts/authContext";
+import { updateUsuario } from "@/services/api";
+
 import {
 	Input,
 	Modal,
@@ -26,10 +28,17 @@ import { storage } from '../../firebase/config';
 import { FaPencilAlt } from 'react-icons/fa';
 
 type ModalPerfil = {
-	onClose: () => void;
-	isOpen: boolean;
-	onOpen: () => void;
-	user: IUser | undefined;
+  onClose: () => void;
+  isOpen: boolean;
+  onOpen: () => void;
+  user: IUser | undefined;
+};
+
+type UserypePost = {
+  avatar: string;
+  name: string;
+  email: string;
+  senha: string;
 };
 
 export const ModalPerfil = ({ onOpen, isOpen, onClose, user }: ModalPerfil) => {
