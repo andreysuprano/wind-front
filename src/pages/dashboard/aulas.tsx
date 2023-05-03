@@ -108,6 +108,7 @@ export default function Aulas() {
   const [professor, setProfessor] = useState<ProfessorGet>();
   const [professorSelected, setProfessorSelected] = useState<string>("");
   const toast = useToast();
+
   const [editingAulaID, setEditingAulaID] = useState("");
   const editingAula = useMemo(
     () => aulas.find((aula) => aula.id === editingAulaID),

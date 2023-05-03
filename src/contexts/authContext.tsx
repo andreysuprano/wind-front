@@ -15,7 +15,7 @@ interface UserContextType {
 export interface IUser {
   avatar: string;
   name: string;
-  userType: string;
+  userType: string | undefined;
   username: string;
   sub: string | undefined;
 }

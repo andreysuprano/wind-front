@@ -38,6 +38,7 @@ import { FaSearch, FaPlus } from "react-icons/fa";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { client } from "@/services/client";
 import { TbEdit } from "react-icons/tb";
+import router from "next/router";
 
 type MaterialTypePost = {
   nome: string;
@@ -156,6 +157,14 @@ export default function Materiais() {
       });
   };
 
+  function openTab(material: any) {
+    let win = window.open(
+      `/dashboard/materiais/${material}`,
+      "",
+      "popup,width=1000,height=600, left=300, top=500"
+    );
+  }
+
   return (
     <SidebarWithHeader>
       <Flex
@@ -253,11 +262,7 @@ export default function Materiais() {
                         py={1}
                         color="white"
                         mb={2}
-                      >
-                        {/* <Text fontSize={'xs'} fontWeight="medium">
-											React
-										</Text> */}
-                      </Box>
+                      ></Box>
                       <Heading color={"black"} fontSize={"2xl"} noOfLines={1}>
                         {material.nome}
                       </Heading>
@@ -275,7 +280,10 @@ export default function Materiais() {
                         w="full"
                       >
                         <Text fontSize={"md"} fontWeight={"semibold"}>
-                          Abrir
+                          <Button onClick={() => openTab(material.id)}>
+                            {" "}
+                            Abrir
+                          </Button>
                         </Text>
                         <BsArrowUpRight />
                       </Flex>

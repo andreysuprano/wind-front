@@ -18,16 +18,18 @@ import {
   IconButton,
   Flex,
   useToast,
-  Text,
   Progress,
   Link,
+  Skeleton,
+  Box,
+  SkeletonCircle,
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "../../firebase/config";
 import { FaPencilAlt } from "react-icons/fa";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { client } from "@/services/client";
+import useAuth from "@/hooks/useAuth";
 
 type ModalPerfil = {
   onClose: () => void;
@@ -36,74 +38,32 @@ type ModalPerfil = {
   user: IUser | undefined;
 };
 
-type UserypePost = {
-  avatar: string;
-  name: string;
-  username: string;
+type UserTypePost = {
+  avatarUrl: string;
+  nome: string;
+  sobrenome: string;
+  email: string;
 };
 
-export const ModalPerfil = ({ onOpen, isOpen, onClose, user }: ModalPerfil) => {
-  const {
-    formState: { errors },
-    control,
-    handleSubmit,
-    setValue,
-    watch,
-  } = useForm<UserypePost>({
-    defaultValues: {
-      avatar: "",
-      name: "",
-      username: "",
-    },
-  });
+export const ModalPerfil = ({ onOpen, isOpen, onClose }: ModalPerfil) => {
+  const { setUser, user } = useAuth();
 
   const [imageFile, setImageFile] = useState<File>();
-  const [downloadURL, setDownloadURL] = useState("");
+  const [downloadURL, setDownloadURL] = useState(user?.avatar);
   const [isUploading, setIsUploading] = useState(false);
   const [progressUpload, setProgressUpload] = useState(0);
-
   const toast = useToast();
   const inputFile = useRef<any>();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      setValue("avatar", user.avatar);
-      setValue("name", user.name);
-      setValue("username", user.username);
-    } else {
-      setValue("avatar", "");
-      setValue("name", "");
-      setValue("username", "");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, setValue]);
-
-  console.log(user);
-
-  const handleUpdateUsuario: SubmitHandler<any> = (formData) => {
-    setLoading(true);
-    updateUsuario(formData)
-      .then(() => {
-        onClose();
-        // setEditingUserbyEmail("");
-        setLoading(false);
-        toast({
-          title: `Usuário editado com sucesso.`,
-          status: "success",
-          isClosable: true,
-        });
-      })
-      .catch((error) => {
-        setLoading(false);
-        if (!error.response) return;
-        toast({
-          title: `Não foi possível editar usuário.`,
-          status: "error",
-          isClosable: true,
-        });
-      });
-  };
+  const { handleSubmit, control, setValue, watch } = useForm<UserTypePost>({
+    defaultValues: {
+      nome: user?.name.split(" ")[0],
+      sobrenome: user?.name.split(" ")[1],
+      avatarUrl: user?.avatar,
+      email: user?.username,
+    },
+  });
 
   useEffect(() => {
     if (imageFile) {
@@ -118,7 +78,6 @@ export const ModalPerfil = ({ onOpen, isOpen, onClose, user }: ModalPerfil) => {
   const handleSelectedFile = (files: any) => {
     if (files && files[0].size < 10000000) {
       setImageFile(files[0]);
-      console.log(files[0]);
     } else {
       toast({
         title: `Foto muito pesada, selecione outra!`,
@@ -158,6 +117,7 @@ export const ModalPerfil = ({ onOpen, isOpen, onClose, user }: ModalPerfil) => {
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((url) => {
             setDownloadURL(url);
+            setValue("avatarUrl", url);
           });
         }
       );
@@ -170,12 +130,43 @@ export const ModalPerfil = ({ onOpen, isOpen, onClose, user }: ModalPerfil) => {
     }
   };
 
+  const handleUpdateUsuario: SubmitHandler<any> = (formData) => {
+    setLoading(true);
+    updateUsuario(formData)
+      .then(() => {
+        onClose();
+        setLoading(false);
+        setUser({
+          avatar: watch("avatarUrl"),
+          name: watch("nome") + " " + watch("sobrenome"),
+          username: watch("email"),
+          userType: user?.userType,
+          sub: user?.sub,
+        });
+        toast({
+          title: `Usuário editado com sucesso.`,
+          status: "success",
+          isClosable: true,
+        });
+      })
+      .catch((error) => {
+        setLoading(false);
+        if (!error.response) return;
+        toast({
+          title: `Não foi possível editar usuário.`,
+          status: "error",
+          isClosable: true,
+        });
+      });
+  };
+
   return (
     <Modal onClose={onClose} isOpen={isOpen} isCentered>
       <ModalOverlay />
       <form onSubmit={handleSubmit(handleUpdateUsuario)}>
         <ModalContent>
           <ModalCloseButton />
+
           <ModalBody>
             <Heading
               lineHeight={1.1}
@@ -184,10 +175,22 @@ export const ModalPerfil = ({ onOpen, isOpen, onClose, user }: ModalPerfil) => {
             >
               Meu Perfil
             </Heading>
-            <Controller
-              name="avatar"
-              control={control}
-              render={({ field: { onChange, value } }) => (
+            {loading ? (
+              <Stack>
+                <SkeletonCircle size="100px" />
+
+                <Box padding="6" boxShadow="lg" bg="white">
+                  <Skeleton height="20px" />
+                </Box>
+                <Box padding="6" boxShadow="lg" bg="white">
+                  <Skeleton height="20px" />
+                </Box>
+                <Box padding="6" boxShadow="lg" bg="white">
+                  <Skeleton height="20px" />
+                </Box>
+              </Stack>
+            ) : (
+              <>
                 <FormControl id="userName">
                   <Progress
                     colorScheme="green"
@@ -196,12 +199,10 @@ export const ModalPerfil = ({ onOpen, isOpen, onClose, user }: ModalPerfil) => {
                     marginTop={"10px"}
                     marginBottom={"10px"}
                   />
+
                   <FormLabel>Avatar</FormLabel>
                   <Flex marginBottom={"20px"}>
-                    <Avatar
-                      size="xl"
-                      src={downloadURL ? downloadURL : user && user.avatar}
-                    >
+                    <Avatar size="xl" src={downloadURL}>
                       <AvatarBadge
                         as={IconButton}
                         size="sm"
@@ -222,75 +223,70 @@ export const ModalPerfil = ({ onOpen, isOpen, onClose, user }: ModalPerfil) => {
                       }
                       accept="image/*"
                     />
+                    <Controller
+                      name="avatarUrl"
+                      control={control}
+                      defaultValue={downloadURL}
+                      render={({ field }) => <input type="hidden" {...field} />}
+                    />
                   </Flex>
                 </FormControl>
-              )}
-              rules={{ required: true }}
-            />
 
-            <FormControl id="userName" isRequired>
-              <FormLabel>Nome</FormLabel>
-              <Controller
-                name="name"
-                control={control}
-                rules={{ required: true }}
-                render={({ field }) => (
-                  <Input
-                    placeholder="Nome"
-                    _placeholder={{ color: "gray.500" }}
-                    type="text"
-                    {...field}
+                <Flex gap={"15px"}>
+                  <FormControl id="userName" isRequired>
+                    <FormLabel>Nome</FormLabel>
+                    <Controller
+                      name="nome"
+                      control={control}
+                      rules={{ required: true }}
+                      defaultValue={user?.name.split(" ")[0]}
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          placeholder="Nome"
+                          _placeholder={{ color: "gray.500" }}
+                          type="text"
+                        />
+                      )}
+                    />
+                  </FormControl>
+                  <FormControl id="lastName" isRequired>
+                    <FormLabel>Sobrenome</FormLabel>
+                    <Controller
+                      name="sobrenome"
+                      control={control}
+                      rules={{ required: true }}
+                      defaultValue={user?.name.split(" ")[1]}
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          placeholder="Sobrenome"
+                          _placeholder={{ color: "gray.500" }}
+                          type="text"
+                        />
+                      )}
+                    />
+                  </FormControl>
+                </Flex>
+                <FormControl id="email" isRequired marginBottom="10px">
+                  <FormLabel>Email address</FormLabel>
+                  <Controller
+                    name="email"
+                    control={control}
+                    rules={{ required: true }}
+                    defaultValue={user?.username}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        placeholder="your-email@example.com"
+                        _placeholder={{ color: "gray.500" }}
+                        type="email"
+                      />
+                    )}
                   />
-                )}
-              />
-              {/* <Input
-                placeholder="Nome"
-                _placeholder={{ color: "gray.500" }}
-                type="text"
-                value={user?.name.split(" ")[0]}
-              /> */}
-            </FormControl>
-            {/* <FormControl id="lastName" isRequired>
-              <FormLabel>Sobrenome</FormLabel>
-              <Input
-                placeholder="Sobrenome"
-                _placeholder={{ color: "gray.500" }}
-                type="text"
-                value={user?.name.split(" ")[1]}
-              />
-            </FormControl> */}
-            <FormControl id="email" isRequired marginBottom="10px">
-              <FormLabel>Email address</FormLabel>
-              <Controller
-                name="username"
-                control={control}
-                rules={{ required: true }}
-                render={({ field }) => (
-                  <Input
-                    placeholder="your-email@example.com"
-                    _placeholder={{ color: "gray.500" }}
-                    type="email"
-                    {...field}
-                  />
-                )}
-              />
-              {/* <Input
-                placeholder="your-email@example.com"
-                _placeholder={{ color: "gray.500" }}
-                type="email"
-                value={user?.username}
-              /> */}
-            </FormControl>
-            {/* <Flex gap={'15px'}>
-						<FormControl id="password" isRequired>
-							<FormLabel>Senha</FormLabel>
-							<Input placeholder="*******" _placeholder={{ color: 'gray.500' }} type="password" />
-						</FormControl>
-						<FormControl id="password" isRequired>
-							<FormLabel>Repita a senha</FormLabel>
-							<Input placeholder="*******" _placeholder={{ color: 'gray.500' }} type="password" />
-						</FormControl>
-					</Flex> */}
+                </FormControl>
+              </>
+            )}
             <Link href="/forgot-password">Trocar minha senha.</Link>
             <Stack
               spacing={6}
@@ -308,7 +304,6 @@ export const ModalPerfil = ({ onOpen, isOpen, onClose, user }: ModalPerfil) => {
                 disabled={isUploading}
                 onClick={() => {
                   onClose();
-                  // setEditingUserbyEmail("");
                 }}
               >
                 Cancelar

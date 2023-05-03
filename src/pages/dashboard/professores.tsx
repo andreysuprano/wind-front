@@ -65,9 +65,10 @@ type ProfessorTypePost = {
   sobrenome: string;
   cpf: string;
   email: string;
-  id: string;
   senha?: string;
-  ativo: boolean;
+  id: string;
+  // ativo: boolean;
+  // avatarUrl: string;
 };
 
 type ProfessorNormalizadoType = {
@@ -82,6 +83,8 @@ type ProfessorNormalizadoType = {
 };
 
 export default function Alunos() {
+  const [editingProfCPF, setEditingProfCPF] = useState("");
+
   const {
     formState: { errors },
     control,
@@ -93,8 +96,8 @@ export default function Alunos() {
       sobrenome: "",
       cpf: "",
       email: "",
-      senha: "",
-      ativo: true,
+      // ativo: true,
+      // avatarUrl: "",
     },
   });
 
@@ -104,7 +107,6 @@ export default function Alunos() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [professores, setProfessores] = useState<ProfessorType[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editingProfCPF, setEditingProfCPF] = useState("");
 
   const editingProf = useMemo(
     () => professores.find((professor) => professor.cpf === editingProfCPF),
@@ -148,11 +150,13 @@ export default function Alunos() {
       setValue("sobrenome", editingProf.sobrenome);
       setValue("cpf", editingProf.cpf);
       setValue("email", editingProf.email);
+      // setValue("avatarUrl", editingProf.user.avatarUrl);
     } else {
       setValue("nome", "");
       setValue("sobrenome", "");
       setValue("cpf", "");
       setValue("email", "");
+      // setValue("avatarUrl", "");
     }
   }, [editingProf, setValue]);
 

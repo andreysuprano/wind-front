@@ -1,0 +1,22 @@
+.canva-embed-controls {
+  display: none !important;
+}
+.wrapdenied {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  height: 100vh;
+  width: 100vw;
+}
+.message {
+  font-size: 4rem;
+  padding: 10px;
+}
+
+.subMessage {
+  font-size: 1.6rem;
+  text-align: center;
+  width: 80%;
+}

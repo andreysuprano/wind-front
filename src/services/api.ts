@@ -5,16 +5,15 @@ type ProfessorType = {
   sobrenome: string;
   cpf: string;
   email: string;
-  senha: string;
+  senha?: string;
   ativo: true;
 };
 
 type UserType = {
   nome: string;
   sobrenome: string;
-  cpf: string;
   email: string;
-  senha: string;
+  avatarUrl: string;
 };
 
 type AlunoType = {
@@ -90,7 +89,7 @@ export const auth = async (auth: AuthType) => {
 };
 
 export const updateUsuario = async (usuario: UserType) => {
-  return await client.post(`/v1/user/update/${usuario.email}`, usuario);
+  return await client.post(`/v1/user/update-profile/${usuario.email}`, usuario);
 };
 
 export const updateProfessor = async (usuario: ProfessorType) => {
@@ -103,4 +102,8 @@ export const updateAluno = async (usuario: AlunoType) => {
 
 export const updateMaterial = async (usuario: MaterialType) => {
   return await client.post(`/v1/material/update/${usuario.id}`, usuario);
+};
+
+export const buscarMaterialPorId = async (id: string) => {
+  return await client.get(`/v1/material/${id}`);
 };
