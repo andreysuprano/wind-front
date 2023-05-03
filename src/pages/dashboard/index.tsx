@@ -1,5 +1,6 @@
 import SidebarWithHeader from '@/components/SideBar';
 import { StatsCard } from '@/components/StatsCard';
+import useAuth from '@/hooks/useAuth';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, Flex } from '@chakra-ui/react';
 import { FaPlus } from 'react-icons/fa';
 
