@@ -1,13 +1,13 @@
 import axios from 'axios';
 
 const defaultOptions = {
-	baseURL: 'http://localhost:3001'
+	baseURL: 'https://api.windfallinstitute.com.br/'
 };
 
 export const client = axios.create(defaultOptions);
 
 const defaultAuthOptions = {
-	baseUrl: 'http://localhost:3001',
+	baseUrl: 'https://api.windfallinstitute.com.br/',
 	headers: {
 		'Content-Type': 'aplication/json',
 		Authorization: ''
