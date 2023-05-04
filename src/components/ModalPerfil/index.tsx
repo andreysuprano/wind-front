@@ -1,5 +1,5 @@
 import { IUser } from "@/contexts/authContext";
-import { updateUsuario } from "@/services/api";
+import { sendToken, updateUsuario } from "@/services/api";
 
 import {
   Input,
@@ -30,6 +30,7 @@ import { storage } from "../../firebase/config";
 import { FaPencilAlt } from "react-icons/fa";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import useAuth from "@/hooks/useAuth";
+import router from "next/router";
 
 type ModalPerfil = {
   onClose: () => void;
@@ -86,6 +87,19 @@ export const ModalPerfil = ({ onOpen, isOpen, onClose }: ModalPerfil) => {
       });
     }
   };
+  const handleToken = () => {
+    sendToken(user?.username+'')
+      .then(() => {
+        router.push('/change-password/' + user?.username);
+      })
+      .catch(() => {
+        toast({
+          title: `Não foi possível enviar o código.`,
+          status: 'error',
+          isClosable: true
+        });
+      });
+  }
 
   const handleUploadFile = () => {
     if (imageFile) {
@@ -287,7 +301,7 @@ export const ModalPerfil = ({ onOpen, isOpen, onClose }: ModalPerfil) => {
                 </FormControl>
               </>
             )}
-            <Link href="/forgot-password">Trocar minha senha.</Link>
+            <Link onClick={handleToken}>Trocar minha senha.</Link>
             <Stack
               spacing={6}
               direction={["column", "row"]}

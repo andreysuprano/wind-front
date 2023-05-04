@@ -40,6 +40,12 @@ type AuthType = {
 	password: string;
 };
 
+type UpdatePassword = {
+	email: string;
+	senha: string;
+	codigo: number;
+};
+
 type MaterialType = {
 	nome: string;
 	descricao: string;
@@ -114,4 +120,12 @@ export const buscarMaterialPorId = async (id: string) => {
 
 export const buscarProfessorPorEmail = async (email: string) => {
 	return await client.get(`/v1/professor/email/${email}`);
+};
+
+export const sendToken = async (email: string) => {
+	return await client.post(`/v1/user/send-code`, { email });
+};
+
+export const updatePassword = async (payload: UpdatePassword) => {
+	return await client.post(`/v1/user/update-password`, payload);
 };
