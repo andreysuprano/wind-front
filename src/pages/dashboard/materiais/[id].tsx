@@ -4,16 +4,26 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 //@ts-ignore
 import useKeypress from 'react-use-keypress';
-import { Button, useToast } from '@chakra-ui/react';
+import { Button, Flex, Heading, Text, useToast } from '@chakra-ui/react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import styles from '@/styles/general.module.css';
+import { TbPlayerTrackNextFilled } from 'react-icons/tb';
+import { FaBackward } from 'react-icons/fa';
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+
 
 export default function MateriaisId() {
 	const toast = useToast();
 	const [ denied, setDenied ] = useState(false);
 	const [ numPages, setNumPages ] = useState<any>();
 	const [ pageNumber, setPageNumber ] = useState(1);
+  const [counter, setCounter] = useState(59000);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    counter > 0 && setTimeout(() => setCounter(counter - 1), 1000);
+  }, [counter]);
 
 	function onDocumentLoadSuccess(numPages: any) {
 		setNumPages(numPages);
@@ -30,7 +40,7 @@ export default function MateriaisId() {
 		});
 	});
 
-	const router = useRouter();
+  
 	const { id } = router.query;
 
 	useEffect(() => {
@@ -75,8 +85,32 @@ export default function MateriaisId() {
         <>
           <div>
             <div className={styles.buttons}>
-              <button onClick={goToPrevPage}>Prev</button>
-              <button onClick={goToNextPage}>Next</button>
+              <Flex justifyContent={'center'} alignItems={'center'} gap={'20px'} bgColor={'gray.800'} padding={'10px'} borderRadius={'10px'}>
+              <Text fontWeight={900} color={'white'}>
+                  00:{Math.round((counter/1000))}
+                </Text>
+                <Text fontWeight={900} color={'white'}>
+                  Aluno do Joberval
+                </Text>
+              <Button
+                aria-label="Toggle Color Mode"
+                onClick={goToPrevPage}
+                _focus={{ boxShadow: 'none' }}
+                w="fit-content"
+                color={'white'}
+              >
+                <FaBackward color={'black'}/>
+              </Button>
+              <Button
+                aria-label="Toggle Color Mode"
+                onClick={goToNextPage}
+                _focus={{ boxShadow: 'none' }}
+                w="fit-content"
+                color={'white'}
+              >
+                <TbPlayerTrackNextFilled color={'black'}/>
+              </Button>
+              </Flex>
             </div>
             <div>
               <Document
