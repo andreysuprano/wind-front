@@ -1,11 +1,11 @@
 import { IUser } from "@/contexts/authContext";
 import { sendToken, updateUsuario } from "@/services/api";
+import { v4 as uuidv4 } from 'uuid';
 
 import {
   Input,
   Modal,
   ModalBody,
-  ModalCloseButton,
   ModalOverlay,
   ModalContent,
   Button,
@@ -25,12 +25,11 @@ import {
   SkeletonCircle,
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { storage } from "../../firebase/config";
 import { FaPencilAlt } from "react-icons/fa";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import useAuth from "@/hooks/useAuth";
 import router from "next/router";
+import { toBase64, uploadWithBase64 } from "@/util/imageHelper";
 
 type ModalPerfil = {
   onClose: () => void;
@@ -48,11 +47,11 @@ type UserTypePost = {
 
 export const ModalPerfil = ({ onOpen, isOpen, onClose }: ModalPerfil) => {
   const { setUser, user } = useAuth();
-
   const [imageFile, setImageFile] = useState<File>();
-  const [downloadURL, setDownloadURL] = useState(user?.avatar);
-  const [isUploading, setIsUploading] = useState(false);
-  const [progressUpload, setProgressUpload] = useState(0);
+  const [image64, setImage64] = useState('');
+  const [link, setLink] = useState('');
+  const [downloadURL, setDownloadURL] = useState('');
+
   const toast = useToast();
   const inputFile = useRef<any>();
   const [loading, setLoading] = useState(false);
@@ -67,18 +66,20 @@ export const ModalPerfil = ({ onOpen, isOpen, onClose }: ModalPerfil) => {
   });
 
   useEffect(() => {
-    if (imageFile) {
-      handleUploadFile();
+    if(isOpen){
+      setImage64('')
     }
-  }, [imageFile]);
+  }, [isOpen]);
 
   const handleChangeAvatar = () => {
     inputFile.current.click();
   };
 
-  const handleSelectedFile = (files: any) => {
+  const handleSelectedFile = async (files: any) => {
     if (files && files[0].size < 10000000) {
       setImageFile(files[0]);
+      const picBase64 = await toBase64(files[0]);
+      setImage64(`${picBase64}`);
     } else {
       toast({
         title: `Foto muito pesada, selecione outra!`,
@@ -87,6 +88,7 @@ export const ModalPerfil = ({ onOpen, isOpen, onClose }: ModalPerfil) => {
       });
     }
   };
+
   const handleToken = () => {
     sendToken(user?.username+'')
       .then(() => {
@@ -101,77 +103,74 @@ export const ModalPerfil = ({ onOpen, isOpen, onClose }: ModalPerfil) => {
       });
   }
 
-  const handleUploadFile = () => {
-    if (imageFile) {
-      const name = user?.sub;
-      const storageRef = ref(storage, `windfall/${name}`);
-      const uploadTask = uploadBytesResumable(storageRef, imageFile);
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          setProgressUpload(progress); // to show progress upload
-          switch (snapshot.state) {
-            case "paused":
-              console.log("Upload is paused");
-              break;
-            case "running":
-              console.log("Upload is running");
-              break;
-          }
-        },
-        (error) => {
-          toast({
-            title: error + "",
-            status: "warning",
-            isClosable: true,
-          });
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-            setDownloadURL(url);
-            setValue("avatarUrl", url);
-          });
-        }
-      );
-    } else {
-      toast({
-        title: "Arquivo não encontrado!",
-        status: "warning",
-        isClosable: true,
-      });
-    }
-  };
-
-  const handleUpdateUsuario: SubmitHandler<any> = (formData) => {
+  const handleUpdateUsuario: SubmitHandler<any> = async (formData) => {
     setLoading(true);
-    updateUsuario(formData)
-      .then(() => {
-        onClose();
-        setLoading(false);
-        setUser({
-          avatar: watch("avatarUrl"),
-          name: watch("nome") + " " + watch("sobrenome"),
-          username: watch("email"),
-          userType: user?.userType,
-          sub: user?.sub,
-        });
-        toast({
-          title: `Usuário editado com sucesso.`,
-          status: "success",
-          isClosable: true,
-        });
-      })
-      .catch((error) => {
-        setLoading(false);
-        if (!error.response) return;
-        toast({
-          title: `Não foi possível editar usuário.`,
-          status: "error",
-          isClosable: true,
-        });
+    if(imageFile){
+      uploadWithBase64(image64).then((link)=>{
+        setTimeout(()=>{
+          formData.avatarUrl = link;
+          console.log(formData)
+          updateUsuario(formData)
+            .then(() => {
+              setUser({
+                avatar: link,
+                name: watch("nome") + " " + watch("sobrenome"),
+                username: watch("email"),
+                userType: user?.userType,
+                sub: user?.sub,
+              });
+              setLoading(false);
+              setImageFile(undefined);
+              onClose();
+              toast({
+                title: `Usuário editado com sucesso.`,
+                status: "success",
+                isClosable: true,
+              });
+              inputFile.current.value = null
+            })
+            .catch((error) => {
+              setLoading(false);
+              if (!error.response) return;
+              toast({
+                title: `Não foi possível editar usuário.`,
+                status: "error",
+                isClosable: true,
+              });
+            });
+        }, 1000)
       });
+    }else{
+      updateUsuario(formData)
+            .then(() => {
+              setLoading(false);
+              setImageFile(undefined);
+              setUser({
+                avatar: `${user?.avatar}`,
+                name: watch("nome") + " " + watch("sobrenome"),
+                username: watch("email"),
+                userType: user?.userType,
+                sub: user?.sub,
+              });
+              onClose();
+              toast({
+                title: `Usuário editado com sucesso.`,
+                status: "success",
+                isClosable: true,
+              });
+              inputFile.current.value = null
+            })
+            .catch((error) => {
+              setLoading(false);
+              if (!error.response) return;
+              toast({
+                title: `Não foi possível editar usuário.`,
+                status: "error",
+                isClosable: true,
+              });
+            });
+    }
+    
   };
 
   return (
@@ -179,8 +178,6 @@ export const ModalPerfil = ({ onOpen, isOpen, onClose }: ModalPerfil) => {
       <ModalOverlay />
       <form onSubmit={handleSubmit(handleUpdateUsuario)}>
         <ModalContent>
-          <ModalCloseButton />
-
           <ModalBody>
             <Heading
               lineHeight={1.1}
@@ -206,17 +203,9 @@ export const ModalPerfil = ({ onOpen, isOpen, onClose }: ModalPerfil) => {
             ) : (
               <>
                 <FormControl id="userName">
-                  <Progress
-                    colorScheme="green"
-                    size="sm"
-                    value={progressUpload}
-                    marginTop={"10px"}
-                    marginBottom={"10px"}
-                  />
-
                   <FormLabel>Avatar</FormLabel>
                   <Flex marginBottom={"20px"}>
-                    <Avatar size="xl" src={downloadURL}>
+                    <Avatar size="xl" src={image64 ? image64 : user?.avatar }>
                       <AvatarBadge
                         as={IconButton}
                         size="sm"
@@ -236,6 +225,7 @@ export const ModalPerfil = ({ onOpen, isOpen, onClose }: ModalPerfil) => {
                         handleSelectedFile(files.target.files)
                       }
                       accept="image/*"
+                      multiple={false}
                     />
                     <Controller
                       name="avatarUrl"
@@ -315,9 +305,9 @@ export const ModalPerfil = ({ onOpen, isOpen, onClose }: ModalPerfil) => {
                 _hover={{
                   bg: "red.500",
                 }}
-                disabled={isUploading}
                 onClick={() => {
                   onClose();
+                  inputFile.current.files = null;
                 }}
               >
                 Cancelar
@@ -329,7 +319,6 @@ export const ModalPerfil = ({ onOpen, isOpen, onClose }: ModalPerfil) => {
                 _hover={{
                   bg: "blue.500",
                 }}
-                disabled={isUploading}
                 type="submit"
               >
                 Salvar

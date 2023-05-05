@@ -40,6 +40,7 @@ import { AiOutlineSelect, AiOutlineDown } from "react-icons/ai";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useEffect, useMemo, useState } from "react";
 import { adicionarAula, listarAulas, listarProfessores } from "@/services/api";
+import useAuth from "@/hooks/useAuth";
 
 interface AulasGet {
   id: string;
@@ -99,6 +100,7 @@ export default function Aulas() {
     },
   });
 
+  const {user} = useAuth();
   const [search, setSearch] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState(false);
@@ -241,14 +243,16 @@ export default function Aulas() {
               onChange={(e) => setSearch(e.target.value)}
               value={search}
             />
-            <Button
+            {user?.userType === 'PROFESSOR' && 
+              <Button
               leftIcon={<FaPlus />}
               colorScheme="blue"
               variant="solid"
               onClick={onOpen}
-            >
-              Novo
-            </Button>
+                >
+                  Novo
+              </Button>
+            }
           </InputGroup>
         </Flex>
       </Flex>

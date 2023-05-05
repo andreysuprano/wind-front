@@ -23,22 +23,30 @@ import {
 	Stack,
 	Skeleton,
 	Avatar,
-	Select
+	Select,
+	AlertDialog,
+	AlertDialogContent,
+	AlertDialogHeader,
+	AlertDialogBody,
+	AlertDialogFooter,
+	AlertDialogOverlay,
+	AlertDialogCloseButton,
 } from '@chakra-ui/react';
 import { Table, Thead, Tbody, Tr, Th, Td, TableContainer } from '@chakra-ui/react';
 import { FaSearch, FaPlus } from 'react-icons/fa';
 import { AiOutlineSelect } from 'react-icons/ai';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
 	adicionarAula,
 	buscarProfessorPorEmail,
-	listarAlunos,
 	listarAlunosPorProfessorId,
-	listarAulas
+	listarAulas,
+	listarMateriais
 } from '@/services/api';
 import useAuth from '@/hooks/useAuth';
 import { AlunosType } from './alunos';
+import { MaterialData } from '@/components/CardMaterial';
 
 interface AulasGet {
 	id: string;
@@ -84,6 +92,15 @@ interface ProfessorGet {
 }
 
 export default function AulasProfessor() {
+	const { user } = useAuth();
+	const [ search, setSearch ] = useState('');
+	const { isOpen, onOpen, onClose } = useDisclosure();
+	const alertDisclosure = useDisclosure();
+	const [ loading, setLoading ] = useState(true);
+	const [ aulas, setAulas ] = useState<AulasGet[]>([]);
+	const [ aulaId, setAulaId ] = useState('');
+	const [ alunos, setAlunos ] = useState<AlunosType[]>([]);
+	const [ materiais, setMateriais ] = useState<MaterialData[]>([]);
 	const { formState: { errors }, control, handleSubmit, watch, setValue } = useForm<any>({
 		defaultValues: {
 			alunoId: '',
@@ -91,46 +108,41 @@ export default function AulasProfessor() {
 			professorId: '',
 			materialId: '',
 			data: '',
-			status: ''
+			status: 'AGENDADA'
 		}
 	});
-	const { user } = useAuth();
-	const [ search, setSearch ] = useState('');
-	const { isOpen, onOpen, onClose } = useDisclosure();
-	const [ loading, setLoading ] = useState(true);
-	const [ professorId, setProfessorId ] = useState<string>('');
-	const [ aulas, setAulas ] = useState<AulasGet[]>([]);
-	const [ alunos, setAlunos ] = useState<AlunosType[]>([]);
-
+	const cancelRef = useRef<HTMLButtonElement>(null);
 	const toast = useToast();
+
 	const [ editingAulaID, setEditingAulaID ] = useState('');
+
 	const editingAula = useMemo(() => aulas.find((aula) => aula.id === editingAulaID), [ aulas, editingAulaID ]);
-
-	useEffect(() => {
-		const profId = localStorage.getItem('@professorID');
-		setProfessorId(profId + '');
-	}, []);
-
-	useEffect(
-		() => {
-			buscarAulas();
-			buscarAlunos();
-		},
-		[ professorId ]
-	);
 
 	const buscarAulas = useCallback(
 		() => {
-			listarAulas(professorId)
-				.then((response) => {
-					setAulas(response.data);
-					setLoading(false);
+			buscarProfessorPorEmail(`${user?.username}`)
+				.then((professor) => {
+					setValue('professorId', professor.data.id);
+					listarAulas(professor.data.id)
+						.then((aulas) => {
+							setAulas(aulas.data);
+							setLoading(false);
+							buscarAlunos(professor.data.id);
+						})
+						.catch((error) => {
+							setLoading(false);
+							if (!error.response) return;
+							toast({
+								title: `Não foi possível listar as aulas.`,
+								status: 'error',
+								isClosable: true
+							});
+						});
 				})
 				.catch((error) => {
-					setLoading(false);
 					if (!error.response) return;
 					toast({
-						title: `Não foi possível listar as aulas.`,
+						title: `Não foi validar o professor.`,
 						status: 'error',
 						isClosable: true
 					});
@@ -139,51 +151,56 @@ export default function AulasProfessor() {
 		[ aulas ]
 	);
 
-	const buscarAlunos = useCallback(
+	function openTab(aulaId: string) {
+		let win = window.open(
+		  `/dashboard/materiais/${aulaId}`,
+		  "",
+		  "popup,width=1000,height=600, left=300, top=500"
+		);
+		alertDisclosure.onClose();
+	  }
+
+	const buscarMateriais = useCallback(
 		() => {
-			listarAlunosPorProfessorId(professorId)
+			listarMateriais()
 				.then((response) => {
-					setAlunos(response.data);
+					setMateriais(response.data);
 				})
 				.catch((error) => {
 					if (!error.response) return;
 					toast({
-						title: `Não foi possível listar os alunos.`,
+						title: `Não foi possível listar os materiais.`,
 						status: 'error',
 						isClosable: true
 					});
 				});
 		},
-		[ alunos ]
+		[ materiais ]
 	);
 
-	// const buscarProfessorData = useCallback(
-	// 	() => {
-	//     if(user){
-	//       buscarProfessorPorEmail(user?.username)
-	//         .then((response) => {
-	//           setProfessorId(response.data.id);
-	//           buscarAulas();
-	//         })
-	//         .catch((error) => {
-	//           if (!error.response) return;
-	//           toast({
-	//             title: `Não foi validar o professor.`,
-	//             status: 'error',
-	//             isClosable: true
-	//           });
-	//         });
-	//     }
-	// 	},
-	// 	[ professorId ]
-	// );
+	const buscarAlunos = (professorId: string) => {
+		listarAlunosPorProfessorId(professorId)
+			.then((alunos) => {
+				setAlunos(alunos.data);
+			})
+			.catch((error) => {
+				if (!error.response) return;
+				toast({
+					title: `Não foi possível listar os alunos.`,
+					status: 'error',
+					isClosable: true
+				});
+			});
+	};
 
 	useEffect(() => {
-		buscarAlunos();
+		buscarAulas();
+		buscarMateriais();
 	}, []);
 
 	const handleAddAula: SubmitHandler<any> = (formData) => {
 		setLoading(true);
+		setValue('status', 'AGENDADA');
 		adicionarAula(formData)
 			.then(() => {
 				onClose();
@@ -311,14 +328,21 @@ export default function AulasProfessor() {
 													</Flex>
 												</Td>
 												<Td>
-													{aula.status !== 'PENDENTE' ? (
-														<Badge colorScheme="green">REALIZADA</Badge>
-													) : (
-														<Badge colorScheme="red">PENDENTE</Badge>
-													)}
+													{aula.status !== 'CONCLUIDA' ? 
+														<Badge colorScheme="yellow">{aula.status}</Badge>
+														:<Badge colorScheme="green">{aula.status}</Badge>
+													}
 												</Td>
 												<Td>
-													<Button>Iniciar</Button>
+												{aula.status === 'AGENDADA' &&
+													<Button
+														onClick={()=>{
+															alertDisclosure.onOpen()
+															setAulaId(aula.id)
+														}}
+													>Iniciar
+													</Button>
+												}
 												</Td>
 											</Tr>
 										);
@@ -370,7 +394,7 @@ export default function AulasProfessor() {
 								/>
 								<Flex gap={'15px'}>
 									<Controller
-										name="material"
+										name="materialId"
 										control={control}
 										rules={{ required: true }}
 										render={({ field }) => (
@@ -378,12 +402,12 @@ export default function AulasProfessor() {
 												<Text>Material</Text>
 												<Select required={true} {...field}>
 													<option value="">Selecione o Material</option>;
-													{alunos.map((item, index) => {
+													{materiais.map((item, index) => {
 														return (
 															<option
 																value={item.id}
 																key={index}
-															>{`${item.nome} ${item.sobrenome}`}</option>
+															>{`${item.nome}`}</option>
 														);
 													})}
 												</Select>
@@ -391,7 +415,7 @@ export default function AulasProfessor() {
 										)}
 									/>
 									<Controller
-										name="aluno"
+										name="alunoId"
 										control={control}
 										rules={{ required: true }}
 										render={({ field }) => (
@@ -441,6 +465,31 @@ export default function AulasProfessor() {
 					</ModalContent>
 				</form>
 			</Modal>
+			<AlertDialog
+				motionPreset='slideInBottom'
+				leastDestructiveRef={cancelRef}
+				onClose={alertDisclosure.onClose}
+				isOpen={alertDisclosure.isOpen}
+				isCentered
+			>
+				<AlertDialogOverlay />
+
+				<AlertDialogContent>
+				<AlertDialogHeader>Você deseja iniciar a aula?</AlertDialogHeader>
+				<AlertDialogCloseButton />
+				<AlertDialogBody>
+					Ao inciar o status da aula será alterado e o tempo iniciará a contagem, tenha uma ótima aula!
+				</AlertDialogBody>
+				<AlertDialogFooter>
+					<Button ref={cancelRef} onClick={alertDisclosure.onClose}>
+						Cancelar
+					</Button>
+					<Button colorScheme='red' ml={3} onClick={()=>openTab(aulaId)}>
+						Iniciar
+					</Button>
+				</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</SidebarWithHeader>
 	);
 }

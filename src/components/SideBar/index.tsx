@@ -34,6 +34,7 @@ import { IconType } from "react-icons";
 import { ReactText } from "react";
 import useAuth from "@/hooks/useAuth";
 import { ModalPerfil } from "../ModalPerfil";
+import { useRouter } from "next/router";
 
 interface LinkItemProps {
   name: string;
@@ -144,9 +145,10 @@ interface NavItemProps extends FlexProps {
   children: ReactText;
 }
 const NavItem = ({ icon, children, href, ...rest }: NavItemProps) => {
+  const router = useRouter();
   return (
     <Link
-      href={href}
+      onClick={()=>{router.push(href)}}
       style={{ textDecoration: "none" }}
       _focus={{ boxShadow: "none" }}
     >
