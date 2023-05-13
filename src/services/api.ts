@@ -1,13 +1,13 @@
 import { client } from './client';
 
-type ProfessorType = {
-	nome: string;
-	sobrenome: string;
-	cpf: string;
-	email: string;
-	senha?: string;
-	ativo: true;
-};
+	type ProfessorType = {
+		nome: string;
+		sobrenome: string;
+		cpf: string;
+		email: string;
+		senha?: string;
+		ativo: true;
+	};
 
 type UserType = {
 	nome: string;

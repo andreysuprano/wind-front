@@ -229,7 +229,8 @@ export default function Alunos() {
 			<Flex
 				flexDir={'column'}
 				gap={'20px'}
-				backgroundColor={'#FFF'}
+				backgroundColor={'gray.700'}
+				color={'white'}
 				padding={'20px'}
 				borderRadius={'10px'}
 				marginBottom={'20px'}
@@ -255,8 +256,10 @@ export default function Alunos() {
 							placeholder="Buscar professores..."
 							onChange={(e) => setSearch(e.target.value)}
 							value={search}
+							border="none"
+							bgColor="gray.600"
 						/>
-						<Button leftIcon={<FaPlus />} colorScheme="teal" variant="solid" onClick={onOpen}>
+						<Button leftIcon={<FaPlus />} colorScheme="blue" variant="solid" onClick={onOpen}>
 							Novo
 						</Button>
 					</InputGroup>
@@ -271,14 +274,14 @@ export default function Alunos() {
 					<Skeleton height="20px" />
 				</Stack>
 			) : (
-				<TableContainer backgroundColor={'#FFF'} borderRadius="10px" maxH={'70vh'} overflowY={'scroll'}>
-					<Table variant="simple">
-						<Thead position="sticky" top={0} zIndex="docked" bgColor={'#fff'}>
+				<TableContainer backgroundColor="gray.700" borderRadius="10px" maxH={'70vh'} overflowY={'auto'}>
+					<Table variant="unstyled" color="#DDD">
+						<Thead position="sticky" top={0} zIndex="docked" bgColor={'gray.700'} borderBottom={'gray.300'}>
 							<Tr>
-								<Th>Nome</Th>
-								<Th>CPF</Th>
-								<Th>Email</Th>
-								<Th>Status</Th>
+								<Th color="#DDD">Nome</Th>
+								<Th color="#DDD">CPF</Th>
+								<Th color="#DDD">Email</Th>
+								<Th color="#DDD">Status</Th>
 							</Tr>
 						</Thead>
 						<Tbody>
@@ -307,7 +310,12 @@ export default function Alunos() {
 										.includes(search.toLowerCase())
 								)
 									return (
-										<Tr key={index} _hover={{ bgColor: 'gray.100', cursor: 'pointer' }}>
+										<Tr
+											key={index}
+											_hover={{ bgColor: 'gray.500', cursor: 'pointer' }}
+											borderColor="gray.700"
+											color="#DDD"
+										>
 											<Td
 												onClick={() => {
 													setEditingProfCPF(professor.cpf);

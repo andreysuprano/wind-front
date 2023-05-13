@@ -48,6 +48,7 @@ export default function ForgotPassword() {
 				logout();
 			})
 			.catch(() => {
+				setIsLoading(false);
 				toast({
 					title: `Código inválido.`,
 					status: 'error',
@@ -58,9 +59,24 @@ export default function ForgotPassword() {
 
 	const handleClick = () => setShow(!show);
 	return (
-		<Stack minH={'100vh'} direction={{ base: 'column', md: 'row' }}>
+		<Stack
+			minH={'100vh'}
+			direction={{ base: 'column', md: 'row' }}
+			bg={'#254C80'}
+			bgGradient="linear(to-r, #254C80, #004edc)"
+		>
 			<Flex p={8} flex={1} align={'center'} justify={'center'}>
-				<Stack spacing={4} w={'full'} maxW={'md'} align={'center'} justify={'center'}>
+				<Stack
+					spacing={4}
+					w={'full'}
+					maxW={'md'}
+					align={'center'}
+					justify={'center'}
+					backgroundColor={'gray.700'}
+					padding={'40px'}
+					borderRadius="20px"
+					color="white"
+				>
 					<Heading fontSize={'2xl'}>Mude sua senha</Heading>
 					<FormControl id="codigo">
 						<Flex alignItems="center" flexDir="column">
@@ -74,10 +90,10 @@ export default function ForgotPassword() {
 										setCode(e);
 									}}
 								>
-									<PinInputField />
-									<PinInputField />
-									<PinInputField />
-									<PinInputField />
+									<PinInputField color="white" border="none" bgColor="gray.600" />
+									<PinInputField color="white" border="none" bgColor="gray.600" />
+									<PinInputField color="white" border="none" bgColor="gray.600" />
+									<PinInputField color="white" border="none" bgColor="gray.600" />
 								</PinInput>
 							</HStack>
 						</Flex>
@@ -92,6 +108,9 @@ export default function ForgotPassword() {
 									setPassword(e.target.value);
 								}}
 								disabled={isLoading}
+								color="white"
+								border="none"
+								bgColor="gray.600"
 							/>
 							<InputRightElement width="4.5rem">
 								<Button h="1.75rem" size="sm" onClick={handleClick} variant={'unstyled'}>

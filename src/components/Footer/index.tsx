@@ -4,6 +4,7 @@ import {
 	chakra,
 	Container,
 	Flex,
+	Img,
 	Link,
 	Stack,
 	Text,
@@ -20,14 +21,14 @@ const LOGO_WINDFALL =
 const Logo = (props: any) => {
 	return (
 		<Flex justify={{ base: 'center', md: 'start' }} alignItems={'center'} gap={'10px'}>
-			<Avatar size="sm" name="Windfall English" src={LOGO_WINDFALL} />
+			<Img src={LOGO_WINDFALL} width="40px" borderRadius="10px" boxShadow="lg" />
 			<Text
 				textAlign={useBreakpointValue({ base: 'center', md: 'left' })}
 				fontFamily={'heading'}
 				color={useColorModeValue('gray.900', 'white')}
 				fontWeight={900}
 			>
-				Windfall English
+				Windfall Language
 			</Text>
 		</Flex>
 	);
@@ -79,7 +80,7 @@ export default function SmallCentered() {
 					justify={{ base: 'center', md: 'space-between' }}
 					align={{ base: 'center', md: 'center' }}
 				>
-					<Text>© 2023 Windfall English Institute. Todos os direitos reservados.</Text>
+					<Text>© 2023 Windfall Language Institute. Todos os direitos reservados.</Text>
 					<Stack direction={'row'} spacing={6}>
 						{/* <SocialButton label={'Twitter'} href={'#'}>
 							<FaTwitter />

@@ -195,7 +195,8 @@ export default function Aulas() {
       <Flex
         flexDir={"column"}
         gap={"20px"}
-        backgroundColor={"#FFF"}
+        backgroundColor={'gray.700'}
+        color={'white'}
         padding={"20px"}
         borderRadius={"10px"}
         marginBottom={"20px"}
@@ -217,6 +218,8 @@ export default function Aulas() {
               onChange={(e) => {
                 setProfessorSelected(e.target.value);
               }}
+              border="none"
+							bgColor="gray.600"
             >
               <option value="">Selecione o Professor</option>;
               {professores.map((item, index) => {
@@ -242,6 +245,8 @@ export default function Aulas() {
               placeholder="Buscar aulas..."
               onChange={(e) => setSearch(e.target.value)}
               value={search}
+              border="none"
+							bgColor="gray.600"
             />
             {user?.userType === 'PROFESSOR' && 
               <Button
@@ -277,15 +282,15 @@ export default function Aulas() {
           </Flex>
         </Flex>
       ) : (
-        <TableContainer backgroundColor={"#FFF"} borderRadius="10px">
-          <Table variant="simple">
-            <Thead>
+        <TableContainer backgroundColor="gray.700" borderRadius="10px" maxH={'70vh'} overflowY={'auto'}>
+          <Table variant="unstyled" color="#DDD">
+            <Thead position="sticky" top={0} zIndex="docked" bgColor={'gray.700'} borderBottom={'gray.300'}>
               <Tr>
-                <Th>Título</Th>
-                <Th>Data</Th>
-                <Th>Aluno</Th>
-                <Th>Professor</Th>
-                <Th>Status</Th>
+                <Th color="#DDD">Título</Th>
+                <Th color="#DDD">Data</Th>
+                <Th color="#DDD">Aluno</Th>
+                <Th color="#DDD">Professor</Th>
+                <Th color="#DDD">Status</Th>
               </Tr>
             </Thead>
             <Tbody>
@@ -311,7 +316,12 @@ export default function Aulas() {
                       .includes(search.toLowerCase())
                   )
                     return (
-                      <Tr key={index}>
+                      <Tr 
+                        key={index} 
+                        _hover={{ bgColor: 'gray.600', cursor: 'pointer' }}
+                        borderColor="gray.700"
+                        color="#DDD"
+                      >
                         <Td>{aula.titulo}</Td>
                         <Td>
                           {new Date(aula.data).toLocaleString("pt-br", {
