@@ -21,6 +21,7 @@ import {
   MenuDivider,
   MenuItem,
   MenuList,
+  Img,
 } from "@chakra-ui/react";
 import { FiMenu, FiChevronDown } from "react-icons/fi";
 import {
@@ -66,7 +67,11 @@ export default function SidebarWithHeader({
 }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
-    <Box minH="100vh" bg={useColorModeValue("gray.100", "gray.900")}>
+    <Box 
+      minH="100vh" 
+      bg={'#254C80'}
+      bgGradient='linear(to-r, #254C80, #004edc)'
+    >
       <SidebarContent
         onClose={() => onClose}
         display={{ base: "none", md: "block" }}
@@ -102,9 +107,9 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
   return (
     <Box
       transition="3s ease"
-      bg={useColorModeValue("white", "gray.900")}
+      bg="#171A1D"
       borderRight="1px"
-      borderRightColor={useColorModeValue("gray.200", "gray.700")}
+      borderRightColor="gray.700"
       w={{ base: "full", md: 60 }}
       pos="fixed"
       h="full"
@@ -112,17 +117,14 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
     >
       <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
         <Flex justifyContent="center" alignItems="center" gap={"10px"}>
-          <Avatar
-            size={"md"}
-            src={
-              "https://firebasestorage.googleapis.com/v0/b/projetcs-storage.appspot.com/o/windfall%2FWhatsApp%20Image%202023-03-29%20at%2014.04.46.jpeg?alt=media&token=1095f376-9566-4936-99c3-5eb9e3c1a541"
-            }
-          />
-          <Text fontSize="lg" fontFamily="Poppins" fontWeight="bold">
-            Windfall E. I.
+          <Img src={'https://firebasestorage.googleapis.com/v0/b/projetcs-storage.appspot.com/o/windfall%2FWhatsApp%20Image%202023-03-29%20at%2014.04.46.jpeg?alt=media&token=1095f376-9566-4936-99c3-5eb9e3c1a541'} width="50px" borderRadius="10px" boxShadow="lg" />
+          <Text fontSize="lg" fontFamily="Poppins" fontWeight="bold" color="#DDD">
+            Windfall Language
           </Text>
         </Flex>
-        <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} />
+        <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} 
+          color="white"
+        />
       </Flex>
       {user?.userType == "PROFESSOR"
         ? LinkItemsProfessor.map((link) => (
@@ -158,6 +160,7 @@ const NavItem = ({ icon, children, href, ...rest }: NavItemProps) => {
         mx="4"
         borderRadius="lg"
         role="group"
+        color="#DDD"
         cursor="pointer"
         _hover={{
           bg: "#254C80",
@@ -199,9 +202,9 @@ const MobileNav = ({ menuOpen, ...rest }: MobileProps) => {
       px={{ base: 4, md: 4 }}
       height="20"
       alignItems="center"
-      bg={useColorModeValue("white", "gray.900")}
+      bg="#171A1D"
       borderBottomWidth="1px"
-      borderBottomColor={useColorModeValue("gray.200", "gray.700")}
+      borderBottomColor="gray.700"
       justifyContent={{ base: "space-between", md: "flex-end" }}
       {...rest}
     >
@@ -210,16 +213,17 @@ const MobileNav = ({ menuOpen, ...rest }: MobileProps) => {
         onClick={menuOpen}
         variant="outline"
         aria-label="open menu"
-        icon={<FiMenu />}
+        icon={<FiMenu color="white"/>}
       />
 
       <Text
         display={{ base: "flex", md: "none" }}
-        fontSize="1xl"
+        fontSize="2xl"
         fontFamily="monospace"
         fontWeight="bold"
+        color="white"
       >
-        Windfall English
+        Windfall Language
       </Text>
 
       <HStack spacing={{ base: "0", md: "6" }}>
@@ -238,13 +242,13 @@ const MobileNav = ({ menuOpen, ...rest }: MobileProps) => {
                   spacing="1px"
                   ml="2"
                 >
-                  <Text fontSize="sm">{user?.name}</Text>
-                  <Text fontSize="xs" color="gray.600">
+                  <Text fontSize="sm" color="#DDD">{user?.name}</Text>
+                  <Text fontSize="xs" color="#DDD">
                     {user?.userType}
                   </Text>
                 </VStack>
                 <Box display={{ base: "none", md: "flex" }}>
-                  <FiChevronDown />
+                  <FiChevronDown color="#DDD"/>
                 </Box>
               </HStack>
             </MenuButton>

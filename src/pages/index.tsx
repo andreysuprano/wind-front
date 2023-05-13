@@ -13,7 +13,8 @@ import {
 	useToast,
 	InputRightElement,
 	InputGroup,
-	Avatar
+	Avatar,
+	Img
 } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import { useContext, useState } from 'react';
@@ -91,18 +92,31 @@ export default function Login() {
 	};
 
 	return (
-		<Stack minH={'100vh'} direction={{ base: 'column', md: 'row' }}>
+		<Stack minH={'100vh'} bg={'#254C80'} bgGradient="linear(to-r, #254C80, #004edc)">
 			<Flex p={8} flex={1} align={'center'} justify={'center'}>
-				<Stack spacing={4} w={'full'} maxW={'md'} align={'center'} justify={'center'}>
-					<Avatar
-						size={'xl'}
+				<Stack
+					spacing={4}
+					w={'full'}
+					maxW={'md'}
+					align={'center'}
+					justify={'center'}
+					backgroundColor={'gray.700'}
+					padding={'40px'}
+					borderRadius="20px"
+				>
+					<Img
 						src={
 							'https://firebasestorage.googleapis.com/v0/b/projetcs-storage.appspot.com/o/windfall%2FWhatsApp%20Image%202023-03-29%20at%2014.04.46.jpeg?alt=media&token=1095f376-9566-4936-99c3-5eb9e3c1a541'
 						}
+						width="100px"
+						borderRadius="10px"
+						boxShadow="lg"
 					/>
-					<Heading fontSize={'2xl'}>Windfall English Institute 🤩</Heading>
+					<Heading color="white" fontSize={'2xl'}>
+						Windfall Language Institute 🤩
+					</Heading>
 					<FormControl id="email">
-						<FormLabel>Seu email</FormLabel>
+						<FormLabel color="white">Seu email</FormLabel>
 						<Input
 							type="email"
 							placeholder="seuemail@seuemail.com"
@@ -111,10 +125,13 @@ export default function Login() {
 								setUsername(e.target.value);
 							}}
 							disabled={isLoading}
+							color="white"
+							border="none"
+							bgColor="gray.600"
 						/>
 					</FormControl>
 					<FormControl id="password">
-						<FormLabel>Senha</FormLabel>
+						<FormLabel color="white">Senha</FormLabel>
 						<InputGroup size="md">
 							<Input
 								type={show ? 'text' : 'password'}
@@ -124,6 +141,9 @@ export default function Login() {
 									setPassword(e.target.value);
 								}}
 								disabled={isLoading}
+								color="white"
+								border="none"
+								bgColor="gray.600"
 							/>
 							<InputRightElement width="4.5rem">
 								<Button h="1.75rem" size="sm" onClick={handleClick} variant={'unstyled'}>
@@ -143,15 +163,6 @@ export default function Login() {
 						</Button>
 					</Stack>
 				</Stack>
-			</Flex>
-			<Flex flex={1}>
-				<Image
-					alt={'Login Image'}
-					objectFit={'cover'}
-					src={
-						'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1352&q=80'
-					}
-				/>
 			</Flex>
 		</Stack>
 	);

@@ -276,7 +276,8 @@ export default function Alunos() {
 			<Flex
 				flexDir={'column'}
 				gap={'20px'}
-				backgroundColor={'#FFF'}
+				backgroundColor={'gray.700'}
+				color={'white'}
 				padding={'20px'}
 				borderRadius={'10px'}
 				marginBottom={'20px'}
@@ -302,6 +303,8 @@ export default function Alunos() {
 							placeholder="Buscar alunos..."
 							onChange={(e) => setSearch(e.target.value)}
 							value={search}
+							border="none"
+							bgColor="gray.600"
 						/>
 						<Button leftIcon={<FaPlus />} colorScheme="blue" variant="solid" onClick={handleOpenModal}>
 							Novo
@@ -318,9 +321,9 @@ export default function Alunos() {
 					<Skeleton height="20px" />
 				</Stack>
 			) : (
-				<TableContainer backgroundColor={'#FFF'} borderRadius="10px" overflowY={'scroll'} maxH={'70vh'}>
-					<Table variant="simple">
-						<Thead position="sticky" top={0} zIndex="docked" bgColor={'#fff'}>
+				<TableContainer backgroundColor="gray.700" borderRadius="10px" overflowY={'auto'} maxH={'70vh'}>
+					<Table variant="unstyled" color="#DDD">
+						<Thead position="sticky" top={0} zIndex="docked" bgColor={'gray.700'} borderBottom={'gray.300'}>
 							<Tr>
 								<Th>Nome</Th>
 								<Th>CPF</Th>
@@ -355,7 +358,7 @@ export default function Alunos() {
 										.includes(search.toLowerCase())
 								)
 									return (
-										<Tr key={index} _hover={{ bgColor: 'gray.100', cursor: 'pointer' }}>
+										<Tr key={index} _hover={{ bgColor: 'gray.500', cursor: 'pointer' }}>
 											<Td
 												onClick={() => {
 													setEditingAlunoCPF(aluno.cpf);
