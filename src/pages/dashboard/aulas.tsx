@@ -157,7 +157,7 @@ export default function Aulas() {
       setValue("titulo", "");
       setValue("professorId", "");
       setValue("data", "");
-      setValue("status", true);
+      setValue("status", false);
     }
   }, [editingAula, setValue]);
 
@@ -564,11 +564,11 @@ export default function Aulas() {
                   render={({ field }) => (
                     <Box>
                       <Text>Status</Text>
-                      <Input
+                      {/* <Input
                         placeholder="Pendente ou Relalizada"
                         required={true}
                         {...field}
-                      />
+                      /> */}
                     </Box>
                   )}
                 />
