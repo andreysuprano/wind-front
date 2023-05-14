@@ -38,7 +38,7 @@ export default function Portal() {
 	return (
 		<>
 			<NavBar />
-			<Flex width={'100%'} height={"75vh"}  alignItems="center" bgColor="gray.100" overflowX="unset" flexDir="column">
+			<Flex width={'100%'} height={"75vh"}  alignItems="center" bgColor="gray.100" overflowX="unset" flexDir="column" bgGradient='linear(to-r, #254C80, #004edc)'>
 				<Aviso/>
 				{
 					loading ? 

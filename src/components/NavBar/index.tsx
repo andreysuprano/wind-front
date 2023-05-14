@@ -46,14 +46,13 @@ export default function WithSubnavigation() {
   return (
     <Box>
       <Flex
-        bg={"white"}
-        color={"gray.600"}
+        bg="#171A1D"
         minH={"80px"}
         py={{ base: 2 }}
         px={{ base: 4 }}
         borderBottom={1}
         borderStyle={"solid"}
-        borderColor={useColorModeValue("gray.200", "gray.900")}
+        borderColor={"gray.700"}
         align={"center"}
       >
         <Flex
@@ -64,7 +63,12 @@ export default function WithSubnavigation() {
           <IconButton
             onClick={onToggle}
             icon={
-              isOpen ? <CloseIcon w={3} h={3} /> : <HamburgerIcon w={5} h={5} />
+              isOpen ? <CloseIcon w={3} h={3} 
+              color={"#DDD"}
+            /> 
+              : <HamburgerIcon w={5} h={5} 
+                color={"#DDD"}
+                />
             }
             variant={"ghost"}
             aria-label={"Toggle Navigation"}
@@ -84,7 +88,7 @@ export default function WithSubnavigation() {
             <Text
               textAlign={useBreakpointValue({ base: "center", md: "left" })}
               fontFamily={"heading"}
-              color={useColorModeValue("gray.900", "white")}
+              color={"#DDD"}
               fontWeight={900}
             >
               Windfall Language
@@ -103,7 +107,7 @@ export default function WithSubnavigation() {
                 transition="all 0.3s"
                 _focus={{ boxShadow: "none" }}
               >
-                <HStack>
+                <HStack color={"#DDD"}>
                   <Avatar size={"sm"} src={user?.avatar} />
                   <VStack
                     display={{ base: "none", md: "flex" }}
@@ -112,7 +116,7 @@ export default function WithSubnavigation() {
                     ml="2"
                   >
                     <Text fontSize="sm">{user?.name}</Text>
-                    <Text fontSize="xs" color="gray.600">
+                    <Text fontSize="xs" color={"#DDD"}>
                       {user?.userType}
                     </Text>
                   </VStack>
@@ -148,8 +152,6 @@ export default function WithSubnavigation() {
 }
 
 const DesktopNav = () => {
-  const linkColor = useColorModeValue("gray.600", "gray.200");
-  const linkHoverColor = useColorModeValue("gray.800", "white");
   const popoverContentBgColor = useColorModeValue("white", "gray.800");
 
   return (
@@ -163,10 +165,10 @@ const DesktopNav = () => {
                 href={navItem.href ?? "#"}
                 fontSize={"sm"}
                 fontWeight={500}
-                color={linkColor}
+                color={"#DDD"}
                 _hover={{
                   textDecoration: "none",
-                  color: linkHoverColor,
+                  color:'#004EDC',
                 }}
               >
                 {navItem.label}
@@ -239,6 +241,7 @@ const MobileNav = () => {
       bg={useColorModeValue("white", "gray.800")}
       p={4}
       display={{ md: "none" }}
+      color={"#DDD"}
     >
       {NAV_ITEMS.map((navItem) => (
         <MobileNavItem key={navItem.label} {...navItem} />
@@ -248,10 +251,10 @@ const MobileNav = () => {
 };
 
 const MobileNavItem = ({ label, children, href }: NavItem) => {
-  const { isOpen, onToggle } = useDisclosure();
+  const navDisclosure = useDisclosure();
 
   return (
-    <Stack spacing={4} onClick={children && onToggle}>
+    <Stack spacing={4} onClick={children && navDisclosure.onToggle}>
       <Flex
         py={2}
         as={Link}
@@ -272,14 +275,14 @@ const MobileNavItem = ({ label, children, href }: NavItem) => {
           <Icon
             as={ChevronDownIcon}
             transition={"all .25s ease-in-out"}
-            transform={isOpen ? "rotate(180deg)" : ""}
+            transform={navDisclosure.isOpen ? "rotate(180deg)" : ""}
             w={6}
             h={6}
           />
         )}
       </Flex>
 
-      <Collapse in={isOpen} animateOpacity style={{ marginTop: "0!important" }}>
+      <Collapse in={navDisclosure.isOpen} animateOpacity style={{ marginTop: "0!important" }}>
         <Stack
           mt={2}
           pl={4}
@@ -287,6 +290,7 @@ const MobileNavItem = ({ label, children, href }: NavItem) => {
           borderStyle={"solid"}
           borderColor={useColorModeValue("gray.200", "gray.700")}
           align={"start"}
+          color={"#DDD"}
         >
           {children &&
             children.map((child) => (

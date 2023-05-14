@@ -289,9 +289,7 @@ export const ModalPerfil = ({ onOpen, isOpen, onClose }: ModalPerfil) => {
                     )}
                   />
                 </FormControl>
-              </>
-            )}
-            <Link onClick={handleToken}>Trocar minha senha.</Link>
+                <Link onClick={handleToken}>Trocar minha senha.</Link>
             <Stack
               spacing={6}
               direction={["column", "row"]}
@@ -324,6 +322,9 @@ export const ModalPerfil = ({ onOpen, isOpen, onClose }: ModalPerfil) => {
                 Salvar
               </Button>
             </Stack>
+              </>
+            )}
+            
           </ModalBody>
         </ModalContent>
       </form>

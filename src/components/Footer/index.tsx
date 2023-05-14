@@ -20,12 +20,12 @@ const LOGO_WINDFALL =
 
 const Logo = (props: any) => {
 	return (
-		<Flex justify={{ base: 'center', md: 'start' }} alignItems={'center'} gap={'10px'}>
+		<Flex justify={{ base: 'center', md: 'start' }} alignItems={'center'} gap={'10px'} bg="#171A1D">
 			<Img src={LOGO_WINDFALL} width="40px" borderRadius="10px" boxShadow="lg" />
 			<Text
 				textAlign={useBreakpointValue({ base: 'center', md: 'left' })}
 				fontFamily={'heading'}
-				color={useColorModeValue('gray.900', 'white')}
+				color="white"
 				fontWeight={900}
 			>
 				Windfall Language
@@ -60,7 +60,7 @@ const SocialButton = ({ children, label, href }: { children: ReactNode; label: s
 
 export default function SmallCentered() {
 	return (
-		<Box bg={useColorModeValue('gray.50', 'gray.900')} color={useColorModeValue('gray.700', 'gray.200')}>
+		<Box bg="#171A1D" color="white">
 			<Container as={Stack} maxW={'6xl'} py={4} spacing={4} justify={'center'} align={'center'}>
 				<Logo />
 				<Stack direction={'row'} spacing={6}>
@@ -70,7 +70,7 @@ export default function SmallCentered() {
 				</Stack>
 			</Container>
 
-			<Box borderTopWidth={1} borderStyle={'solid'} borderColor={useColorModeValue('gray.200', 'gray.700')}>
+			<Box borderTopWidth={1} borderStyle={'solid'} borderColor="gray.700">
 				<Container
 					as={Stack}
 					maxW={'6xl'}
