@@ -39,7 +39,12 @@ import { FaSearch, FaPlus, FaTrashAlt, FaPencilAlt } from "react-icons/fa";
 import { AiOutlineSelect, AiOutlineDown } from "react-icons/ai";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useEffect, useMemo, useState } from "react";
-import { adicionarAula, listarAulas, listarProfessores } from "@/services/api";
+import {
+  adicionarAula,
+  listarAulas,
+  listarProfessores,
+  updateAula,
+} from "@/services/api";
 import useAuth from "@/hooks/useAuth";
 
 interface AulasGet {
@@ -70,6 +75,15 @@ interface AulasGetNormalized {
   emailAluno: string;
 }
 
+interface AulasPost {
+  id: string;
+  titulo: string;
+  data: string;
+  alunoId: string;
+  professorId: string;
+  status: boolean;
+}
+
 interface ProfessorGet {
   id: string;
   nome: string;
@@ -90,17 +104,18 @@ export default function Aulas() {
     handleSubmit,
     watch,
     setValue,
-  } = useForm<any>({
+    unregister,
+  } = useForm<AulasPost>({
     defaultValues: {
       alunoId: "",
       titulo: "",
       professorId: "",
       data: "",
-      status: "",
+      status: true,
     },
   });
 
-  const {user} = useAuth();
+  const { user } = useAuth();
   const [search, setSearch] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState(false);
@@ -112,6 +127,7 @@ export default function Aulas() {
   const toast = useToast();
 
   const [editingAulaID, setEditingAulaID] = useState("");
+
   const editingAula = useMemo(
     () => aulas.find((aula) => aula.id === editingAulaID),
     [aulas, editingAulaID]
@@ -128,6 +144,22 @@ export default function Aulas() {
       setProfessor(result[0]);
     }
   }, [professorSelected]);
+
+  useEffect(() => {
+    if (editingAula) {
+      setValue("alunoId", editingAula.alunoId);
+      setValue("titulo", editingAula.titulo);
+      setValue("professorId", editingAula.professorId);
+      setValue("data", editingAula.data);
+      unregister("status");
+    } else {
+      setValue("alunoId", "");
+      setValue("titulo", "");
+      setValue("professorId", "");
+      setValue("data", "");
+      setValue("status", false);
+    }
+  }, [editingAula, setValue]);
 
   async function buscarAulas(professorId: string) {
     setProfessorSelected(professorId);
@@ -190,13 +222,41 @@ export default function Aulas() {
       });
   };
 
+  const handleOpenModal = () => {
+    onOpen();
+  };
+
+  const handleUpdateAula: SubmitHandler<any> = (formData) => {
+    setLoading(true);
+    updateAula(formData)
+      .then(() => {
+        onClose();
+        setEditingAulaID("");
+        setLoading(false);
+        toast({
+          title: `Professor(a) editado com sucesso.`,
+          status: "success",
+          isClosable: true,
+        });
+      })
+      .catch((error) => {
+        setLoading(false);
+        if (!error.response) return;
+        toast({
+          title: `Não foi possível editar professor(a).`,
+          status: "error",
+          isClosable: true,
+        });
+      });
+  };
+
   return (
     <SidebarWithHeader>
       <Flex
         flexDir={"column"}
         gap={"20px"}
-        backgroundColor={'gray.700'}
-        color={'white'}
+        backgroundColor={"gray.700"}
+        color={"white"}
         padding={"20px"}
         borderRadius={"10px"}
         marginBottom={"20px"}
@@ -219,7 +279,7 @@ export default function Aulas() {
                 setProfessorSelected(e.target.value);
               }}
               border="none"
-							bgColor="gray.600"
+              bgColor="gray.600"
             >
               <option value="">Selecione o Professor</option>;
               {professores.map((item, index) => {
@@ -246,18 +306,18 @@ export default function Aulas() {
               onChange={(e) => setSearch(e.target.value)}
               value={search}
               border="none"
-							bgColor="gray.600"
+              bgColor="gray.600"
             />
-            {user?.userType === 'PROFESSOR' && 
+            {user?.userType === "PROFESSOR" && (
               <Button
-              leftIcon={<FaPlus />}
-              colorScheme="blue"
-              variant="solid"
-              onClick={onOpen}
-                >
-                  Novo
+                leftIcon={<FaPlus />}
+                colorScheme="blue"
+                variant="solid"
+                onClick={onOpen}
+              >
+                Novo
               </Button>
-            }
+            )}
           </InputGroup>
         </Flex>
       </Flex>
@@ -282,9 +342,20 @@ export default function Aulas() {
           </Flex>
         </Flex>
       ) : (
-        <TableContainer backgroundColor="gray.700" borderRadius="10px" maxH={'70vh'} overflowY={'auto'}>
+        <TableContainer
+          backgroundColor="gray.700"
+          borderRadius="10px"
+          maxH={"70vh"}
+          overflowY={"auto"}
+        >
           <Table variant="unstyled" color="#DDD">
-            <Thead position="sticky" top={0} zIndex="docked" bgColor={'gray.700'} borderBottom={'gray.300'}>
+            <Thead
+              position="sticky"
+              top={0}
+              zIndex="docked"
+              bgColor={"gray.700"}
+              borderBottom={"gray.300"}
+            >
               <Tr>
                 <Th color="#DDD">Título</Th>
                 <Th color="#DDD">Data</Th>
@@ -316,21 +387,38 @@ export default function Aulas() {
                       .includes(search.toLowerCase())
                   )
                     return (
-                      <Tr 
-                        key={index} 
-                        _hover={{ bgColor: 'gray.600', cursor: 'pointer' }}
+                      <Tr
+                        key={index}
+                        _hover={{ bgColor: "gray.600", cursor: "pointer" }}
                         borderColor="gray.700"
                         color="#DDD"
                       >
-                        <Td>{aula.titulo}</Td>
-                        <Td>
+                        <Td
+                          onClick={() => {
+                            setEditingAulaID(item.id);
+                            handleOpenModal();
+                          }}
+                        >
+                          {aula.titulo}
+                        </Td>
+                        <Td
+                          onClick={() => {
+                            setEditingAulaID(item.id);
+                            handleOpenModal();
+                          }}
+                        >
                           {new Date(aula.data).toLocaleString("pt-br", {
                             day: "2-digit",
                             month: "2-digit",
                             year: "2-digit",
                           })}
                         </Td>
-                        <Td>
+                        <Td
+                          onClick={() => {
+                            setEditingAulaID(item.id);
+                            handleOpenModal();
+                          }}
+                        >
                           <Flex gap={"10px"} alignItems={"center"}>
                             <Avatar
                               size="sm"
@@ -340,7 +428,12 @@ export default function Aulas() {
                             {aula.nomeAluno}
                           </Flex>
                         </Td>
-                        <Td>
+                        <Td
+                          onClick={() => {
+                            setEditingAulaID(item.id);
+                            handleOpenModal();
+                          }}
+                        >
                           {professor ? (
                             <Flex gap={"10px"} alignItems={"center"}>
                               <Avatar
@@ -354,7 +447,12 @@ export default function Aulas() {
                             <Flex></Flex>
                           )}
                         </Td>
-                        <Td>
+                        <Td
+                          onClick={() => {
+                            setEditingAulaID(item.id);
+                            handleOpenModal();
+                          }}
+                        >
                           {aula.status !== "PENDENTE" ? (
                             <Badge colorScheme="green">REALIZADA</Badge>
                           ) : (
@@ -392,7 +490,11 @@ export default function Aulas() {
         isCentered
       >
         <ModalOverlay />
-        <form onSubmit={handleSubmit(handleAddAula)}>
+        <form
+          onSubmit={handleSubmit(
+            editingAulaID ? handleUpdateAula : handleAddAula
+          )}
+        >
           <ModalContent>
             <ModalHeader>{`${
               editingAula ? "Editar" : "Adicionar nova"
@@ -402,25 +504,25 @@ export default function Aulas() {
               <Flex flexDir={"column"} gap={"15px"}>
                 <Flex gap={"15px"}>
                   <Controller
-                    name="nome"
+                    name="alunoId"
                     control={control}
                     rules={{ required: true }}
                     render={({ field }) => (
                       <Box>
-                        <Text>Nome</Text>
-                        <Input placeholder="Nome" required={true} {...field} />
+                        <Text>Aluno</Text>
+                        <Input placeholder="Aluno" required={true} {...field} />
                       </Box>
                     )}
                   />
                   <Controller
-                    name="sobrenome"
+                    name="professorId"
                     control={control}
                     rules={{ required: true }}
                     render={({ field }) => (
                       <Box>
-                        <Text>Sobrenome</Text>
+                        <Text>Professor</Text>
                         <Input
-                          placeholder="Sobrenome"
+                          placeholder="Professor"
                           required={true}
                           {...field}
                         />
@@ -429,36 +531,44 @@ export default function Aulas() {
                   />
                 </Flex>
                 <Controller
-                  name="cpf"
+                  name="titulo"
                   control={control}
                   rules={{ required: true }}
                   render={({ field }) => (
                     <Box>
-                      <Text>Cpf</Text>
-                      <Input placeholder="Cpf" required={true} {...field} />
+                      <Text>Titulo</Text>
+                      <Input placeholder="titulo" required={true} {...field} />
                     </Box>
                   )}
                 />
 
                 <Controller
-                  name="email"
+                  name="data"
                   control={control}
                   rules={{ required: true }}
                   render={({ field }) => (
                     <Box>
-                      <Text>Email</Text>
-                      <Input placeholder="Email" required={true} {...field} />
+                      <Text>Data</Text>
+                      <Input
+                        placeholder="00/00/00"
+                        required={true}
+                        {...field}
+                      />
                     </Box>
                   )}
                 />
                 <Controller
-                  name="senha"
+                  name="status"
                   control={control}
                   rules={{ required: true }}
                   render={({ field }) => (
                     <Box>
-                      <Text>Senha</Text>
-                      <Input placeholder="Senha" required={true} {...field} />
+                      <Text>Status</Text>
+                      {/* <Input
+                        placeholder="Pendente ou Relalizada"
+                        required={true}
+                        {...field}
+                      /> */}
                     </Box>
                   )}
                 />
@@ -478,7 +588,13 @@ export default function Aulas() {
               >
                 Fechar
               </Button>
-              <Button variant={"solid"} background={"green.200"} type="submit">
+              <Button
+                variant={"solid"}
+                background={"#254C80"}
+                color={"#FFF"}
+                type="submit"
+                _hover={{ bgColor: "#254D80" }}
+              >
                 Salvar
               </Button>
             </ModalFooter>
