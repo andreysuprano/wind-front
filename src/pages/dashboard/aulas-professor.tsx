@@ -47,6 +47,9 @@ import {
 import useAuth from '@/hooks/useAuth';
 import { AlunosType } from './alunos';
 import { MaterialData } from '@/components/CardMaterial';
+import { TbHistory } from 'react-icons/tb';
+import { GiSpellBook } from 'react-icons/gi';
+import { BsCollectionPlayFill } from 'react-icons/bs';
 
 interface AulasGet {
 	id: string;
@@ -285,6 +288,7 @@ export default function AulasProfessor() {
 								<Th>Data</Th>
 								<Th>Aluno</Th>
 								<Th>Status</Th>
+								<Th>Ações</Th>
 								<Th />
 							</Tr>
 						</Thead>
@@ -334,15 +338,30 @@ export default function AulasProfessor() {
 													}
 												</Td>
 												<Td>
-												{aula.status === 'AGENDADA' &&
+													<Flex gap="20px" alignItems="center">
 													<Button
-														onClick={()=>{
-															alertDisclosure.onOpen()
-															setAulaId(aula.id)
-														}}
-													>Iniciar
+													  w="fit-content"
+													  colorScheme="gray"
+													  >
+													  <TbHistory />
 													</Button>
-												}
+													  {aula.status === 'AGENDADA' && user?.userType === 'PROFESSOR' &&
+														<>
+															<Button
+																w="fit-content"
+																colorScheme="blue"
+															>
+																<GiSpellBook />
+															</Button>
+															<Button
+																w="fit-content"
+																colorScheme="green"
+															>
+																<BsCollectionPlayFill/>
+															</Button>
+														</>
+													}
+													</Flex>
 												</Td>
 											</Tr>
 										);
