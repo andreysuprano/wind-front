@@ -1,7 +1,7 @@
 import SidebarWithHeader from "@/components/SideBar";
 import { buscarMaterialPorId } from "@/services/api";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 //@ts-ignore
 import useKeypress from "react-use-keypress";
 import { Button, Flex, Heading, Text, useToast } from "@chakra-ui/react";
@@ -16,10 +16,38 @@ export default function MateriaisId() {
   const [denied, setDenied] = useState(false);
   const [numPages, setNumPages] = useState<any>();
   const [pageNumber, setPageNumber] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [materialURL, setMaterialURL] = useState<any[]>([]);
 
-  // const [counter, setCounter] = useState(59000);
-  // Inicial de 1 hora = 3600
   const [countdown, setCountdown] = useState(3600);
+
+  const router = useRouter();
+  const { id } = router.query;
+
+  const buscarAulaporID = async () => {
+    setLoading(true);
+    await buscarMaterialPorId(id + "")
+      .then((response) => {
+        console.log(response);
+        setLoading(false);
+        setMaterialURL(response.data.driveUrl);
+      })
+      .catch((error) => {
+        setLoading(false);
+        if (!error.response) return;
+        toast({
+          title: `Não foi possível buscar o material.`,
+          status: "error",
+          isClosable: true,
+        });
+      });
+  };
+
+  useLayoutEffect(() => {
+    console.log(id);
+
+    buscarAulaporID();
+  }, []);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -31,18 +59,12 @@ export default function MateriaisId() {
       }
     }, 1000);
 
-    return () => clearInterval(intervalId); // Limpando o intervalo quando o componente é desmontado
+    return () => clearInterval(intervalId);
   }, [countdown]);
 
   const hours = Math.floor(countdown / 3600);
   const minutes = Math.floor((countdown % 3600) / 60);
   const seconds = countdown % 60;
-
-  const router = useRouter();
-
-  // useEffect(() => {
-  //   counter > 0 && setTimeout(() => setCounter(counter - 1), 1000);
-  // }, [counter]);
 
   function onDocumentLoadSuccess(numPages: any) {
     setNumPages(numPages);
@@ -57,8 +79,6 @@ export default function MateriaisId() {
       isClosable: true,
     });
   });
-
-  const { id } = router.query;
 
   useEffect(() => {
     document.addEventListener("keydown", function (event) {
@@ -106,10 +126,11 @@ export default function MateriaisId() {
               <Flex
                 justifyContent={"center"}
                 alignItems={"center"}
-                gap={"20px"}
+                gap={"50px"}
                 bgColor={"gray.800"}
                 padding={"10px"}
                 borderRadius={"10px"}
+                width={"1000px"}
               >
                 <Text fontWeight={900} color={"white"}>
                   {/* 00:{Math.round(counter / 1000)} */}
@@ -144,16 +165,30 @@ export default function MateriaisId() {
                 </Button>
               </Flex>
             </div>
-            <div className={styles["wrap-contentMaterial"]}>
-              <Document
-                file="https://firebasestorage.googleapis.com/v0/b/projetcs-storage.appspot.com/o/windfall%2Fmateriais%2FDesign%20sem%20nome.pdf?alt=media&token=d477626a-b333-4bfc-b8d6-292a59ba9383"
-                onLoadSuccess={onDocumentLoadSuccess}
-                className={styles.pdf}
+            {/* <div className={styles["wrap-contentMaterial"]}> */}
+            <div style={{ width: "100%", height: "100vh" }}>
+              <div
+                style={{ position: "relative", width: "100%", height: "100%" }}
               >
-                <Page pageNumber={pageNumber} />
-              </Document>
+                {loading ? (
+                  <>
+                    <h1>Carregando...</h1>
+                  </>
+                ) : (
+                  <Document
+                    file={materialURL}
+                    onLoadSuccess={onDocumentLoadSuccess}
+                    className={styles.pdf}
+                  >
+                    <div onContextMenu={(e: any) => e.preventDefault()}>
+                      <Page pageNumber={pageNumber} />
+                    </div>
+                  </Document>
+                )}
+              </div>
             </div>
           </div>
+          {/* </div> */}
         </>
       )}
     </div>

@@ -99,6 +99,10 @@ export const listarAulasPorAluno = async (alunoId: any) => {
   return await client.get(`/v1/aula/aluno/${alunoId}`);
 };
 
+export const buscarAulaPorID = async (id: any) => {
+  return await client.get(`/v1/aula/${id}`);
+};
+
 export const listarMateriais = async () => {
   return await client.get("/v1/material");
 };

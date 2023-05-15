@@ -156,13 +156,34 @@ export default function Materiais() {
         });
       });
   };
-
   function openTab(material: any) {
     let win = window.open(
       `/dashboard/materiais/${material}`,
       "",
-      "popup,width=1640,height=920, left=300, top=500"
+      "popup_window,width=1280,height=800, resizable=false, fullscreen=false, scrollbars=false"
     );
+
+    // Verifica se o objeto window possui a propriedade document
+    if (win && win.document) {
+      // Verifica se a API de tela cheia é suportada pelo navegador
+      if (win.document.documentElement.requestFullscreen) {
+        // Se o modo de tela cheia já estiver ativado, desativa-o
+        if (win.document.fullscreenElement) {
+          win.document.exitFullscreen();
+        }
+
+        // Adiciona um evento para detectar se o modo de tela cheia é ativado pelo usuário
+        win.document.addEventListener("fullscreenchange", () => {
+          // Verifica se o modo de tela cheia foi ativado e, caso contrário, solicita-o novamente
+          if (!win?.document.fullscreenElement) {
+            win?.document.documentElement.requestFullscreen();
+          }
+        });
+
+        // Solicita o modo de tela cheia inicialmente
+        win.document.documentElement.requestFullscreen();
+      }
+    }
   }
 
   return (
