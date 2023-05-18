@@ -1,52 +1,44 @@
-import SidebarWithHeader from "@/components/SideBar";
 import { buscarMaterialPorId } from "@/services/api";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useLayoutEffect, useState } from "react";
-//@ts-ignore
-import useKeypress from "react-use-keypress";
-import { Button, Flex, Heading, Text, useToast } from "@chakra-ui/react";
-import { Document, Page, pdfjs } from "react-pdf";
+import { useEffect, useState } from "react";
+import { Button, Flex, Text, useToast } from "@chakra-ui/react";
 import styles from "@/styles/general.module.css";
-import { TbPlayerTrackNextFilled } from "react-icons/tb";
-import { FaBackward } from "react-icons/fa";
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+import { buscarAulaPorID } from "@/services/api";
 
 export default function MateriaisId() {
   const toast = useToast();
   const [denied, setDenied] = useState(false);
-  const [numPages, setNumPages] = useState<any>();
-  const [pageNumber, setPageNumber] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [materialURL, setMaterialURL] = useState<any[]>([]);
-
+  const [materialURL, setMaterialURL] = useState<string>('');
   const [countdown, setCountdown] = useState(3600);
 
   const router = useRouter();
   const { id } = router.query;
 
-  const buscarAulaporID = async () => {
+  const buscarAula = async () => {
     setLoading(true);
-    await buscarMaterialPorId(id + "")
-      .then((response) => {
-        console.log(response);
-        setLoading(false);
-        setMaterialURL(response.data.driveUrl);
+    await buscarAulaPorID(location.pathname.split('/')[4])
+      .then((aula) => {
+        buscarMaterialPorId(aula.data.materialId).then((material)=>{
+          console.log(material.data);
+          setMaterialURL(material.data.driveUrl);
+        });
       })
       .catch((error) => {
         setLoading(false);
         if (!error.response) return;
         toast({
-          title: `Não foi possível buscar o material.`,
+          title: `Não foi possível buscar a aula`,
           status: "error",
           isClosable: true,
         });
       });
   };
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     console.log(location.pathname);
 
-    buscarAulaporID();
+    buscarAula();
   }, []);
 
   useEffect(() => {
@@ -66,60 +58,62 @@ export default function MateriaisId() {
   const minutes = Math.floor((countdown % 3600) / 60);
   const seconds = countdown % 60;
 
-  function onDocumentLoadSuccess(numPages: any) {
-    setNumPages(numPages);
-    setDenied(false);
-  }
-
-  useKeypress(["Control", "Shift", "Alt", "91"], () => {
-    setDenied(true);
-    toast({
-      title: `Informação de conteúdo privado!`,
-      status: "warning",
-      isClosable: true,
-    });
-  });
-
   useEffect(() => {
     document.addEventListener("keydown", function (event) {
-      console.log(
-        `Key: ${event.key} with keycode ${event.keyCode} has been pressed`
-      );
+      const keys = [91,16, 17,18];
+      if(keys.includes(event.keyCode)|| event.keyCode === 91){
+        setDenied(true);
+      }
     });
+
+    window.addEventListener('mouseleave', function() {
+      setDenied(true);
+    });
+
+    window.addEventListener('blur', function() {
+      setDenied(true);
+    });
+
   }, []);
 
   useEffect(() => {
     if (id) {
       buscarMaterialPorId(id[0]);
     }
-    console.log(pageNumber);
-  }, [pageNumber]);
-
-  const goToPrevPage = () =>
-    setPageNumber(pageNumber - 1 <= 1 ? 1 : pageNumber - 1);
-
-  const goToNextPage = () =>
-    setPageNumber(pageNumber + 1 >= numPages ? numPages : pageNumber + 1);
+  }, []);
 
   return (
     <div className={styles.wrap}>
-      {denied ? (
-        <div className={styles.wrapdenied}>
-          <Button
-            colorScheme="orange"
-            onClick={() => {
-              setDenied(false);
-            }}
-          >
-            VOLTAR
-          </Button>
-          <h1 className={styles.message}>Conteúdo privado!!!</h1>
-          <h5 className={styles.subMessage}>
-            Não divulgue ou utilize de forma inapropriada ou sem consentimento
-            pelos criadores do mesmo.
-          </h5>
-        </div>
-      ) : (
+        <Flex 
+          position="absolute" 
+          height="100vh" 
+          width="100vw"
+          flexDir="column" 
+          alignItems="center" 
+          justifyContent="center"
+          background="#112233"
+          opacity="0.95"
+          backdropFilter="blur(10px)"
+          visibility={!denied ? "hidden": "visible"}
+          zIndex={999}
+        >
+            <h1 className={styles.message}>Cuidado!</h1>
+            <h5 className={styles.subMessage}>
+              Não utilize este material de forma inapropriada ou sem consentimento
+              da coordenação da Windfall.
+            </h5>
+            <Text color="white" marginBottom="20px" fontSize="12px">
+             Conteúdo protegido por direitos autorais.
+            </Text>
+            <Button
+              colorScheme="blue"
+              onClick={() => {
+                setDenied(false);
+              }}
+            >
+              VOLTAR
+            </Button>
+        </Flex>   
         <>
           <div className={styles["big-div"]}>
             <div className={styles.buttons}>
@@ -128,9 +122,8 @@ export default function MateriaisId() {
                 alignItems={"center"}
                 gap={"50px"}
                 bgColor={"gray.800"}
-                padding={"10px"}
-                borderRadius={"10px"}
                 width={"1000px"}
+                padding="8px"
               >
                 <Text fontWeight={900} color={"white"}>
                   {/* 00:{Math.round(counter / 1000)} */}
@@ -145,12 +138,13 @@ export default function MateriaisId() {
                 <Text fontWeight={900} color={"white"}>
                   Aluno do Joberval
                 </Text>
-                <Button
+                {/* <Button
                   aria-label="Toggle Color Mode"
                   onClick={goToPrevPage}
                   _focus={{ boxShadow: "none" }}
                   w="fit-content"
                   color={"white"}
+                  height="30px"
                 >
                   <FaBackward color={"black"} />
                 </Button>
@@ -160,9 +154,10 @@ export default function MateriaisId() {
                   _focus={{ boxShadow: "none" }}
                   w="fit-content"
                   color={"white"}
+                  height="30px"
                 >
                   <TbPlayerTrackNextFilled color={"black"} />
-                </Button>
+                </Button> */}
               </Flex>
             </div>
             {/* <div className={styles["wrap-contentMaterial"]}> */}
@@ -170,27 +165,12 @@ export default function MateriaisId() {
               <div
                 style={{ position: "relative", width: "100%", height: "100%" }}
               >
-                {loading ? (
-                  <>
-                    <h1>Carregando...</h1>
-                  </>
-                ) : (
-                  <Document
-                    file={materialURL}
-                    onLoadSuccess={onDocumentLoadSuccess}
-                    className={styles.pdf}
-                  >
-                    <div onContextMenu={(e: any) => e.preventDefault()}>
-                      <Page pageNumber={pageNumber} />
-                    </div>
-                  </Document>
-                )}
+                  <iframe src={materialURL+"#toolbar=0"} width="100%" height="600" ></iframe>
               </div>
             </div>
           </div>
           {/* </div> */}
         </>
-      )}
     </div>
   );
 }

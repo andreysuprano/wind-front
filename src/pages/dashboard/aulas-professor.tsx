@@ -156,7 +156,7 @@ export default function AulasProfessor() {
 
 	function openTab(aulaId: string) {
 		let win = window.open(
-		  `/dashboard/materiais/${aulaId}`,
+		  `/dashboard/materiais/aula/${aulaId}`,
 		  "",
 		  "popup,width=1000,height=600, left=300, top=500"
 		);
@@ -231,10 +231,11 @@ export default function AulasProfessor() {
 			<Flex
 				flexDir={'column'}
 				gap={'20px'}
-				backgroundColor={'#FFF'}
 				padding={'20px'}
 				borderRadius={'10px'}
 				marginBottom={'20px'}
+				backgroundColor={'gray.700'}
+				color={'white'}
 			>
 				<Flex>
 					<Breadcrumb spacing="8px" separator={'>'}>
@@ -257,6 +258,8 @@ export default function AulasProfessor() {
 							placeholder="Buscar aulas..."
 							onChange={(e) => setSearch(e.target.value)}
 							value={search}
+							border="none"
+							bgColor="gray.600"
 						/>
 						<Button leftIcon={<FaPlus />} colorScheme="blue" variant="solid" onClick={onOpen}>
 							Novo
@@ -273,23 +276,22 @@ export default function AulasProfessor() {
 					<Skeleton height="20px" />
 				</Stack>
 			) : !aulas ? (
-				<Flex width={'100%'} height={'60%'} alignItems={'center'} justifyContent={'center'}>
+				<Flex width={'100%'} height={'60%'} alignItems={'center'} justifyContent={'center'} >
 					<Flex>
 						<AiOutlineSelect />
 						<Text>Selecione um professor para buscar as aulas.</Text>
 					</Flex>
 				</Flex>
 			) : (
-				<TableContainer backgroundColor={'#FFF'} borderRadius="10px">
-					<Table variant="simple">
+				<TableContainer backgroundColor="gray.700" borderRadius="10px">
+					<Table variant="unstyled" color="#DDD">
 						<Thead>
 							<Tr>
-								<Th>Título</Th>
-								<Th>Data</Th>
-								<Th>Aluno</Th>
-								<Th>Status</Th>
-								<Th>Ações</Th>
-								<Th />
+								<Th color="#DDD">Título</Th>
+								<Th color="#DDD">Data</Th>
+								<Th color="#DDD">Aluno</Th>
+								<Th color="#DDD">Status</Th>
+								<Th color="#DDD">Ações</Th>
 							</Tr>
 						</Thead>
 						<Tbody>
@@ -316,7 +318,10 @@ export default function AulasProfessor() {
 											.includes(search.toLowerCase())
 									)
 										return (
-											<Tr key={index}>
+											<Tr key={index}
+											_hover={{ bgColor: 'gray.500', cursor: 'pointer' }}
+											borderColor="gray.700"
+											color="#DDD">
 												<Td>{aula.titulo}</Td>
 												<Td>
 													{new Date(aula.data).toLocaleString('pt-br', {
@@ -341,7 +346,7 @@ export default function AulasProfessor() {
 													<Flex gap="20px" alignItems="center">
 													<Button
 													  w="fit-content"
-													  colorScheme="gray"
+													  colorScheme="yellow"
 													  >
 													  <TbHistory />
 													</Button>
@@ -356,6 +361,9 @@ export default function AulasProfessor() {
 															<Button
 																w="fit-content"
 																colorScheme="green"
+																onClick={()=>{
+																	openTab(aula.id);
+																}}
 															>
 																<BsCollectionPlayFill/>
 															</Button>
