@@ -110,7 +110,7 @@ export const ModalPerfil = ({ onOpen, isOpen, onClose }: ModalPerfil) => {
         setTimeout(()=>{
           formData.avatarUrl = link;
           console.log(formData)
-          updateUsuario(formData)
+          updateUsuario(`${user?.username}`,formData)
             .then(() => {
               setUser({
                 avatar: link,
@@ -141,7 +141,7 @@ export const ModalPerfil = ({ onOpen, isOpen, onClose }: ModalPerfil) => {
         }, 1000)
       });
     }else{
-      updateUsuario(formData)
+      updateUsuario(`${user?.username}`,formData)
             .then(() => {
               setLoading(false);
               setImageFile(undefined);

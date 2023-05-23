@@ -134,8 +134,8 @@ export const auth = async (auth: AuthType) => {
 	return await client.post('/v1/auth/login', auth);
 };
 
-export const updateUsuario = async (usuario: UserType) => {
-	return await client.post(`/v1/user/update-profile/${usuario.email}`, usuario);
+export const updateUsuario = async (email: string, usuario: UserType) => {
+	return await client.post(`/v1/user/update-profile/${email}`, usuario);
 };
 
 export const updateProfessor = async (usuario: ProfessorType) => {
