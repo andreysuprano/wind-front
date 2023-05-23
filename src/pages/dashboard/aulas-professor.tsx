@@ -164,7 +164,7 @@ export default function AulasProfessor() {
 	);
 
 	function openTab(aulaId: string) {
-		let win = window.open(
+		window.open(
 		  `/dashboard/materiais/aula/${aulaId}`,
 		  "",
 		  "popup,width=1000,height=600, left=300, top=500"

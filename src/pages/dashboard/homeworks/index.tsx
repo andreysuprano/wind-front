@@ -154,10 +154,10 @@ export default function Materiais() {
 			});
 	};
 	function openTab(material: any) {
-		let win = window.open(
+		window.open(
 			`/dashboard/materiais/${material}`,
 			'',
-			'popup_window,width=1280,height=800, resizable=false, fullscreen=false, scrollbars=false'
+			'popup_window,width=1280,height=720, resizable=false, fullscreen=false, scrollbars=false'
 		);
 	}
 

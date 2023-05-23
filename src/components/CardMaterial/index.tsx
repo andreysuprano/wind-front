@@ -24,7 +24,7 @@ export default function CardMaterial(bookProps: CardBookProps) {
 		});
 	};
 	function openTab(aulaId: string) {
-		let win = window.open(
+		window.open(
 		  `/dashboard/materiais/${aulaId}`,
 		  "",
 		  "popup,width=1280,height=720"
