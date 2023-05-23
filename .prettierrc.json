@@ -1,0 +1,31 @@
+{
+	"printWidth": 80,
+	"endOfLine": "lf",
+	"tabWidth": 2,
+	"semi": true,
+	"bracketSpacing": false,
+	"useTabs": false,
+
+	"overrides": [
+		{
+			"files": [ "*.mjs", "*.cjs", "*.js" ],
+			"options": {
+				"parser": "babel"
+			}
+		},
+
+		{
+			"files": [ "*.mts", "*.cts", "*.ts" ],
+			"options": {
+				"parser": "babel-ts"
+			}
+		},
+
+		{
+			"files": [ "*.json", "*.jsonc", "*.json5" ],
+			"options": {
+				"parser": "json5"
+			}
+		}
+	]
+}

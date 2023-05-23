@@ -9,6 +9,7 @@
 	padding: 10px;
 	height: 100vh;
 	width: 100%;
+	overflow: hidden !important;
 }
 .message {
 	font-size: 3rem;
@@ -25,6 +26,8 @@
 	margin-bottom: 20px;
 }
 .wrap {
+	overflow-x: hidden;
+	overflow-y: hidden;
 }
 
 .buttons {

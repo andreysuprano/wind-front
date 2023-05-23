@@ -394,18 +394,10 @@ export default function Aulas() {
                         color="#DDD"
                       >
                         <Td
-                          onClick={() => {
-                            setEditingAulaID(item.id);
-                            handleOpenModal();
-                          }}
                         >
                           {aula.titulo}
                         </Td>
                         <Td
-                          onClick={() => {
-                            setEditingAulaID(item.id);
-                            handleOpenModal();
-                          }}
                         >
                           {new Date(aula.data).toLocaleString("pt-br", {
                             day: "2-digit",
@@ -414,10 +406,7 @@ export default function Aulas() {
                           })}
                         </Td>
                         <Td
-                          onClick={() => {
-                            setEditingAulaID(item.id);
-                            handleOpenModal();
-                          }}
+
                         >
                           <Flex gap={"10px"} alignItems={"center"}>
                             <Avatar
@@ -429,10 +418,7 @@ export default function Aulas() {
                           </Flex>
                         </Td>
                         <Td
-                          onClick={() => {
-                            setEditingAulaID(item.id);
-                            handleOpenModal();
-                          }}
+
                         >
                           {professor ? (
                             <Flex gap={"10px"} alignItems={"center"}>
@@ -448,10 +434,7 @@ export default function Aulas() {
                           )}
                         </Td>
                         <Td
-                          onClick={() => {
-                            setEditingAulaID(item.id);
-                            handleOpenModal();
-                          }}
+  
                         >
                           {aula.status !== "PENDENTE" ? (
                             <Badge colorScheme="green">REALIZADA</Badge>

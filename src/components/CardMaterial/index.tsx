@@ -1,86 +1,88 @@
 import { useState } from 'react';
-import { Box, Heading, Text, Img, Flex, Center, useColorModeValue, HStack } from '@chakra-ui/react';
-import { BsArrowUpRight, BsHeartFill, BsHeart } from 'react-icons/bs';
-import { TbEdit } from 'react-icons/tb';
+import { Text, Flex, Image, Badge, Button } from '@chakra-ui/react';
+import { useRouter } from 'next/router';
+import { BsCollectionPlayFill } from 'react-icons/bs';
+import { FaRegTrashAlt } from 'react-icons/fa';
+import { deleteBook } from '@/services/api';
+import useAuth from '@/hooks/useAuth';
 
-export interface MaterialData {
+export interface CardBookProps {
 	id: string;
 	nome: string;
 	descricao: string;
-	driveUrl: string;
-	thumbnail: string;
-	onEdit: (id: string) => void;
+	capa: string;
+	idioma: string;
+	nivel: string;
 }
 
-export default function CardMaterial(material: MaterialData) {
-	const handleEdit = (id: any) => {
-		material.onEdit(id);
+export default function CardMaterial(bookProps: CardBookProps) {
+	const router = useRouter();
+	const {user} = useAuth();
+	const handleDeleteBook = (id: string) => {
+		deleteBook(id).then(() => {
+			window.location.reload();
+		});
 	};
-
+	function openTab(aulaId: string) {
+		let win = window.open(
+		  `/dashboard/materiais/${aulaId}`,
+		  "",
+		  "popup,width=1280,height=720"
+		);
+	}
 	return (
-		<Center py={6}>
-			<Box
-				w="250px"
-				rounded={'sm'}
-				my={5}
-				mx={[ 0, 5 ]}
-				overflow={'hidden'}
-				bg="gray.700"
-				border={'1px'}
-				borderColor="black"
-				boxShadow={useColorModeValue('6px 6px 0 black', '6px 6px 0 cyan')}
-			>
-				<Box h={'150px'} borderBottom={'1px'} borderColor="black" bg="gray.700">
-					<Img
-						src={material.thumbnail}
-						roundedTop={'sm'}
-						objectFit="cover"
-						h="full"
-						w="full"
-						alt={'Blog Image'}
-					/>
-				</Box>
-				<Box p={4} bg="gray.700">
-					<Box bg="black" display={'inline-block'} px={2} py={1} color="white" mb={2}>
-						{/* <Text fontSize={'xs'} fontWeight="medium">
-							React
-						</Text> */}
-					</Box>
-					<Heading color={'black'} fontSize={'2xl'} noOfLines={1}>
-						{material.nome}
-					</Heading>
-					<Text color={'gray.500'} noOfLines={2}>
-						{material.descricao}
+		<Flex
+			bgColor="gray.700"
+			borderRadius={20}
+			maxW="600px"
+			alignItems="center"
+			justifyContent="center"
+			padding="10px"
+			gap="10px"
+		>
+			<Image maxWidth="200px" height="fit-content" borderRadius={20} src={bookProps.capa} />
+			<Flex flexDir="column">
+				<Flex gap="10px">
+					<Badge>{bookProps.idioma}</Badge>
+					<Badge variant="outline" colorScheme="blue">
+						{bookProps.nivel}
+					</Badge>
+				</Flex>
+				<Flex flexDir="column">
+					<Text color="#ddd" fontWeight="extrabold" fontSize="22px">
+						{bookProps.nome}
 					</Text>
-				</Box>
-				<HStack borderTop={'1px'} color="black" bg="gray.700">
-					<Flex
-						p={4}
-						alignItems="center"
-						justifyContent={'space-between'}
-						roundedBottom={'sm'}
-						cursor={'pointer'}
-						w="full"
-						bg="gray.700"
+					<Text color="#ddd">{bookProps.descricao}</Text>
+				</Flex>
+
+				<Flex marginTop="20px" gap="10px">
+					<Button
+						colorScheme="blue"
+						onClick={() => {
+							if(user?.userType!="ADMIN"){	
+								openTab(bookProps.id)
+							}else{
+								router.push(`/dashboard/books/lessons/${bookProps.id}`);
+							}
+						}}
 					>
-						<Text fontSize={'md'} fontWeight={'semibold'}>
-							Abrir
-						</Text>
-						<BsArrowUpRight />
-					</Flex>
-					<Flex
-						p={4}
-						alignItems="center"
-						justifyContent={'space-between'}
-						roundedBottom={'sm'}
-						borderLeft={'1px'}
-						cursor="pointer"
-						bg="gray.700"
+						Abrir
+					</Button>
+					{
+						user?.userType === "ADMIN" &&
+						<Button
+						w="fit-content"
+						colorScheme="red"
+						onClick={() => {
+							handleDeleteBook(bookProps.id);
+						}}
 					>
-						<TbEdit fontSize={'24px'} onClick={() => material.onEdit} />
-					</Flex>
-				</HStack>
-			</Box>
-		</Center>
+						<FaRegTrashAlt />
+					</Button>
+					}
+					
+				</Flex>
+			</Flex>
+		</Flex>
 	);
 }

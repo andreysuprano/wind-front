@@ -1,13 +1,4 @@
-import {
-	Alert,
-	AlertDescription,
-	AlertIcon,
-	AlertTitle,
-	Box,
-	Button,
-	CloseButton,
-	useDisclosure
-} from '@chakra-ui/react';
+import { Alert, AlertDescription, AlertIcon, AlertTitle, Box } from '@chakra-ui/react';
 
 export default function Aviso() {
 	return (

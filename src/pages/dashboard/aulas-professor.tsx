@@ -31,6 +31,7 @@ import {
 	AlertDialogFooter,
 	AlertDialogOverlay,
 	AlertDialogCloseButton,
+	Spinner,
 } from '@chakra-ui/react';
 import { Table, Thead, Tbody, Tr, Th, Td, TableContainer } from '@chakra-ui/react';
 import { FaSearch, FaPlus } from 'react-icons/fa';
@@ -42,14 +43,19 @@ import {
 	buscarProfessorPorEmail,
 	listarAlunosPorProfessorId,
 	listarAulas,
+	listarBooks,
 	listarMateriais
 } from '@/services/api';
 import useAuth from '@/hooks/useAuth';
 import { AlunosType } from './alunos';
-import { MaterialData } from '@/components/CardMaterial';
 import { TbHistory } from 'react-icons/tb';
 import { GiSpellBook } from 'react-icons/gi';
 import { BsCollectionPlayFill } from 'react-icons/bs';
+
+interface BookGet {
+	id: string;
+	nome:string;
+}
 
 interface AulasGet {
 	id: string;
@@ -99,11 +105,14 @@ export default function AulasProfessor() {
 	const [ search, setSearch ] = useState('');
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const alertDisclosure = useDisclosure();
+	const historyDisclosure = useDisclosure();
 	const [ loading, setLoading ] = useState(true);
+	const [ loadingModal, setLoadingModal ] = useState(true);
+	const [ aulaHistory, setAulaHistory ] = useState(true);
 	const [ aulas, setAulas ] = useState<AulasGet[]>([]);
 	const [ aulaId, setAulaId ] = useState('');
 	const [ alunos, setAlunos ] = useState<AlunosType[]>([]);
-	const [ materiais, setMateriais ] = useState<MaterialData[]>([]);
+	const [ books, setBooks ] = useState<BookGet[]>([]);
 	const { formState: { errors }, control, handleSubmit, watch, setValue } = useForm<any>({
 		defaultValues: {
 			alunoId: '',
@@ -165,9 +174,9 @@ export default function AulasProfessor() {
 
 	const buscarMateriais = useCallback(
 		() => {
-			listarMateriais()
+			listarBooks()
 				.then((response) => {
-					setMateriais(response.data);
+					setBooks(response.data);
 				})
 				.catch((error) => {
 					if (!error.response) return;
@@ -178,7 +187,7 @@ export default function AulasProfessor() {
 					});
 				});
 		},
-		[ materiais ]
+		[ books ]
 	);
 
 	const buscarAlunos = (professorId: string) => {
@@ -199,6 +208,12 @@ export default function AulasProfessor() {
 	useEffect(() => {
 		buscarAulas();
 		buscarMateriais();
+	}, []);
+
+	useEffect(() => {
+		if(aulaHistory){
+
+		}
 	}, []);
 
 	const handleAddAula: SubmitHandler<any> = (formData) => {
@@ -344,25 +359,32 @@ export default function AulasProfessor() {
 												</Td>
 												<Td>
 													<Flex gap="20px" alignItems="center">
-													<Button
+													{/* <Button
 													  w="fit-content"
 													  colorScheme="yellow"
+													  onClick={()=>{
+														historyDisclosure.onOpen();
+													  }}
 													  >
 													  <TbHistory />
-													</Button>
-													  {aula.status === 'AGENDADA' && user?.userType === 'PROFESSOR' &&
+													</Button> */}
+													  {aula.status != 'CONCLUIDA' && user?.userType === 'PROFESSOR' &&
 														<>
-															<Button
+															{/* <Button
 																w="fit-content"
 																colorScheme="blue"
+																onClick={()=>{
+																	openTab(aula.id);
+																}}
 															>
 																<GiSpellBook />
-															</Button>
+															</Button> */}
 															<Button
 																w="fit-content"
 																colorScheme="green"
 																onClick={()=>{
-																	openTab(aula.id);
+																	setAulaId(aula.id);
+																	alertDisclosure.onOpen();
 																}}
 															>
 																<BsCollectionPlayFill/>
@@ -429,7 +451,7 @@ export default function AulasProfessor() {
 												<Text>Material</Text>
 												<Select required={true} {...field}>
 													<option value="">Selecione o Material</option>;
-													{materiais.map((item, index) => {
+													{books.map((item, index) => {
 														return (
 															<option
 																value={item.id}
@@ -517,6 +539,63 @@ export default function AulasProfessor() {
 				</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
+
+			<Modal
+				onClose={() => {
+					historyDisclosure.onClose();
+					setEditingAulaID('');
+				}}
+				isOpen={historyDisclosure.isOpen}
+				isCentered
+			>
+				<ModalOverlay />
+					<ModalContent>
+						<ModalHeader>Histórico de aula</ModalHeader>
+						<ModalCloseButton />
+						{loadingModal ?
+							<ModalBody>
+								<TableContainer>
+									<Table variant='simple'>
+										<Thead>
+										<Tr>
+											<Th>Status</Th>
+											<Th>Info</Th>
+											<Th>Data</Th>
+											<Th>Timer</Th>
+										</Tr>
+										</Thead>
+										<Tbody>
+										{/* <Tr>
+											<Td>inches</Td>
+											<Td>millimetres (mm)</Td>
+											<Td isNumeric>25.4</Td>
+										</Tr> */}
+										</Tbody>
+									</Table>
+									</TableContainer>
+							</ModalBody>
+						:
+						<ModalBody>
+							<Flex
+								position="absolute"
+								height="100vh"
+								width="100vw"
+								flexDir="column"
+								alignItems="center"
+								justifyContent="center"
+								background="#112233"
+								backdropFilter="blur(10px)"
+								visibility={!loading ? 'hidden' : 'visible'}
+								zIndex={999}
+								>
+								<Text color="white">Buscando Dados...</Text>
+								<Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" />
+							</Flex>
+						</ModalBody>
+						}
+					</ModalContent>
+			</Modal>
+
 		</SidebarWithHeader>
 	);
 }
