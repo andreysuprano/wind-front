@@ -1,43 +1,43 @@
 import SidebarWithHeader from '@/components/SideBar';
 import { Flex, Text } from '@chakra-ui/react';
-import { useMemo } from 'react';
-import { AxisOptions, Chart } from 'react-charts';
 import { BsFillJournalBookmarkFill } from 'react-icons/bs';
 import { IoSchoolOutline } from 'react-icons/io5';
 import { MdFreeCancellation } from 'react-icons/md';
 import useDemoConfig from '../useDemoConfig';
+// import { useMemo } from 'react';
+// import { AxisOptions, Chart } from 'react-charts';
 
-type DailyStars = {
-	professor: string;
-	aulas: number;
-};
+// type DailyStars = {
+// 	professor: string;
+// 	aulas: number;
+// };
 
-type Series = {
-	label: string;
-	data: DailyStars[];
-};
+// type Series = {
+// 	label: string;
+// 	data: DailyStars[];
+// };
 
 export default function Home() {
-	const { data, randomizeData } = useDemoConfig({
-		series: 3,
-		dataType: 'ordinal'
-	});
+	// const { data, randomizeData } = useDemoConfig({
+	// 	series: 3,
+	// 	dataType: 'ordinal'
+	// });
 
-	const primaryAxis = useMemo<AxisOptions<typeof data[number]['data'][number]>>(
-		() => ({
-			getValue: (datum) => datum.primary
-		}),
-		[]
-	);
+	// const primaryAxis = useMemo<AxisOptions<typeof data[number]['data'][number]>>(
+	// 	() => ({
+	// 		getValue: (datum) => datum.primary
+	// 	}),
+	// 	[]
+	// );
 
-	const secondaryAxes = useMemo<AxisOptions<typeof data[number]['data'][number]>[]>(
-		() => [
-			{
-				getValue: (datum) => datum.secondary
-			}
-		],
-		[]
-	);
+	// const secondaryAxes = useMemo<AxisOptions<typeof data[number]['data'][number]>[]>(
+	// 	() => [
+	// 		{
+	// 			getValue: (datum) => datum.secondary
+	// 		}
+	// 	],
+	// 	[]
+	// );
 
 	return (
 		<SidebarWithHeader>
@@ -126,14 +126,14 @@ export default function Home() {
 					alignItems="center"
 				>
 					<Flex width="95%" minHeight="300px" borderRadius="20px">
-						<Chart
+						{/* <Chart
 							options={{
 								data,
 								primaryAxis,
 								secondaryAxes,
 								tooltip: false
 							}}
-						/>
+						/> */}
 					</Flex>
 				</Flex>
 			</Flex>
