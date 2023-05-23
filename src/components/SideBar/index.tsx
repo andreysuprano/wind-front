@@ -47,7 +47,7 @@ const LinkItems: Array<LinkItemProps> = [
   { name: "Professores", icon: FaUserTie, href: "/dashboard/professores" },
   { name: "Alunos", icon: FaUserGraduate, href: "/dashboard/alunos" },
   { name: "Books", icon: FaBook, href: "/dashboard/books" },
-  { name: "Homeworks", icon: FaBook, href: "/dashboard/homeworks" },
+  //{ name: "Homeworks", icon: FaBook, href: "/dashboard/homeworks" },
   { name: "Aulas", icon: FaChalkboardTeacher, href: "/dashboard/aulas" },
 ];
 
