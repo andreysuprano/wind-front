@@ -1,5 +1,5 @@
 import SidebarWithHeader from '@/components/SideBar';
-import { adicionarAluno, listarAlunos, listarProfessores, updateAluno } from '@/services/api';
+import { adicionarAluno, listarAlunos, listarAlunosPorProfessorId, listarProfessores, updateAluno } from '@/services/api';
 import {
 	Avatar,
 	Breadcrumb,
@@ -120,20 +120,21 @@ export default function Alunos() {
 	const buscarAlunos = useCallback(
 		() => {
 			setLoading(true);
-			listarAlunos()
-				.then((response) => {
-					setLoading(false);
-					setAlunos(response.data);
-				})
-				.catch((error) => {
-					if (!error.response) return;
-					setLoading(false);
-					toast({
-						title: `Não foi possível listar alunos.`,
-						status: 'error',
-						isClosable: true
+				listarAlunos()
+					.then((response) => {
+						setLoading(false);
+						setAlunos(response.data);
+					})
+					.catch((error) => {
+						if (!error.response) return;
+						setLoading(false);
+						toast({
+							title: `Não foi possível listar alunos.`,
+							status: 'error',
+							isClosable: true
+						});
 					});
-				});
+			
 		},
 		[ alunos ]
 	);

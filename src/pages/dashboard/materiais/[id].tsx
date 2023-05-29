@@ -213,7 +213,13 @@ export default function MateriaisId() {
 						<TableContainer backgroundColor="gray.700" borderRadius="10px" overflowY={'auto'} maxH={'70vh'}>
 					<Table variant="unstyled" color="#DDD">
 						<Tbody>
-							{lessons.map((lesson, index) => {
+							{lessons.sort((a,b)=>{
+								if(a.nome < b.nome)
+									return -1;
+								if(a.nome > b.nome)
+									return 1
+								return 0
+							}).map((lesson, index) => {
 								return (
 									<Tr key={index} _hover={{ bgColor: 'gray.500', cursor: 'pointer' }} onClick={()=>{
 										handleSetLesson(lesson.id);

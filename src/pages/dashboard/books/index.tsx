@@ -1,5 +1,6 @@
 import CardMaterial, { CardBookProps } from '@/components/CardMaterial';
 import SidebarWithHeader from '@/components/SideBar';
+import useAuth from '@/hooks/useAuth';
 import { adicionarBook, listarBooks } from '@/services/api';
 import { toBase64, uploadWithBase64 } from '@/util/imageHelper';
 import {
@@ -57,7 +58,7 @@ export default function Books() {
 
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const toast = useToast();
-
+	const {user} = useAuth();
 	const buscarBooks = useCallback(
 		() => {
 			listarBooks()
@@ -138,6 +139,7 @@ export default function Books() {
 							status: 'success',
 							isClosable: true
 						});
+						setStep(1);
 						buscarBooks();
 					})
 					.catch((err) => {
@@ -146,6 +148,7 @@ export default function Books() {
 							status: 'success',
 							isClosable: true
 						});
+						setStep(1);
 					});
 			});
 		}
@@ -186,9 +189,12 @@ export default function Books() {
 							border="none"
 							bgColor="gray.600"
 						/>
-						<Button leftIcon={<FaPlus />} colorScheme="blue" variant="solid" onClick={onOpen}>
-							Novo
-						</Button>
+						{
+							user?.userType === "ADMIN" &&
+							<Button leftIcon={<FaPlus />} colorScheme="blue" variant="solid" onClick={onOpen}>
+								Novo
+							</Button>
+						}
 					</InputGroup>
 				</Flex>
 			</Flex>

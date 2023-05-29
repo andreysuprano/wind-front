@@ -133,6 +133,11 @@ export default function Aulas() {
     [aulas, editingAulaID]
   );
 
+  const professorAula = useMemo(
+    () => professores.find((prof) => prof.id === professorSelected),
+    [professores, professorSelected]
+  );
+
   useEffect(() => {
     buscarProfessores();
   }, []);
@@ -392,6 +397,12 @@ export default function Aulas() {
                         _hover={{ bgColor: "gray.600", cursor: "pointer" }}
                         borderColor="gray.700"
                         color="#DDD"
+                        onClick={
+                          ()=>{
+                            setEditingAulaID(aula.id)
+                            onOpen();
+                          } 
+                        }
                       >
                         <Td
                         >
@@ -436,10 +447,10 @@ export default function Aulas() {
                         <Td
   
                         >
-                          {aula.status !== "PENDENTE" ? (
-                            <Badge colorScheme="green">REALIZADA</Badge>
+                          {aula.status === "CONCLUIDA" ? (
+                            <Badge colorScheme="green">{aula.status}</Badge>
                           ) : (
-                            <Badge colorScheme="red">PENDENTE</Badge>
+                            <Badge colorScheme="orange">{aula.status}</Badge>
                           )}
                         </Td>
                       </Tr>
@@ -486,33 +497,24 @@ export default function Aulas() {
             <ModalBody>
               <Flex flexDir={"column"} gap={"15px"}>
                 <Flex gap={"15px"}>
-                  <Controller
-                    name="alunoId"
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field }) => (
-                      <Box>
-                        <Text>Aluno</Text>
-                        <Input placeholder="Aluno" required={true} {...field} />
-                      </Box>
-                    )}
-                  />
-                  <Controller
-                    name="professorId"
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field }) => (
-                      <Box>
-                        <Text>Professor</Text>
-                        <Input
-                          placeholder="Professor"
-                          required={true}
-                          {...field}
-                        />
-                      </Box>
-                    )}
-                  />
-                </Flex>
+                  <Flex gap={"10px"} alignItems={"center"}>
+                      <Avatar
+                        size="sm"
+                        name={professorAula?.nome}
+                        src={professorAula?.user.avatarUrl}
+                      />
+                      {`${professorAula?.nome} ${professorAula?.sobrenome} | Professor`}
+                    </Flex>
+                  </Flex>
+                  <Flex gap={"10px"} alignItems={"center"} marginBottom="20px">
+                      <Avatar
+                        size="sm"
+                        name={editingAula?.aluno.nome}
+                        src={editingAula?.aluno.avatarUrl}
+                      />
+                      {`${editingAula?.aluno.nome} ${editingAula?.aluno.sobrenome} | Aluno`}
+                    </Flex>
+                  </Flex>
                 <Controller
                   name="titulo"
                   control={control}
@@ -536,6 +538,7 @@ export default function Aulas() {
                         placeholder="00/00/00"
                         required={true}
                         {...field}
+                        type="date"
                       />
                     </Box>
                   )}
@@ -547,11 +550,14 @@ export default function Aulas() {
                   render={({ field }) => (
                     <Box>
                       <Text>Status</Text>
-                      {/* <Input
-                        placeholder="Pendente ou Relalizada"
-                        required={true}
-                        {...field}
-                      /> */}
+                      <Select>
+                        <option value={editingAula?.status} >{editingAula?.status}</option>
+                        <option value="AGENDADA">AGENDADA</option>
+                        <option value="PENDENTE">PENDENTE</option>
+                        <option value="INICIADA">INICIADA</option>
+                        <option value="CONCLUIDA">CONCLUIDA</option>
+                        <option value="CANCELADA">CANCELADA</option>  
+                      </Select>
                     </Box>
                   )}
                 />
@@ -560,7 +566,6 @@ export default function Aulas() {
                   <Text>Foto de perfil</Text>
                   <Input type="file" />
                 </Box> */}
-              </Flex>
             </ModalBody>
             <ModalFooter gap={"15px"}>
               <Button

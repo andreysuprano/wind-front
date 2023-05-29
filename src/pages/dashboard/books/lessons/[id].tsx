@@ -73,7 +73,9 @@ export default function Lessons() {
 		() => {
 			buscarBookPorId(bookId)
 				.then((response) => {
-					setLessons(response.data.lessons);
+					var lessonsData = response.data.lessons;
+					lessonsData.sort();
+					setLessons(lessonsData);
 					setLoading(false);
 					onClose();
 				})
@@ -144,7 +146,13 @@ export default function Lessons() {
 				});
 			});
 	};
-
+	function openTab() {
+		window.open(
+		  `/dashboard/materiais/${bookId}`,
+		  "",
+		  "popup,width=1000,height=600, left=300, top=500"
+		);
+	  }
 	return (
 		<SidebarWithHeader>
 			<Flex
@@ -208,13 +216,19 @@ export default function Lessons() {
 							</Tr>
 						</Thead>
 						<Tbody>
-							{lessons.map((lesson, index) => {
+							{lessons.sort((a,b)=>{
+								if(a.nome < b.nome)
+									return -1;
+								if(a.nome > b.nome)
+									return 1
+								return 0
+							}).map((lesson, index) => {
 								return (
 									<Tr key={index} _hover={{ bgColor: 'gray.500', cursor: 'pointer' }}>
 										<Td>{lesson.nome}</Td>
 										<Td>
 											<Flex gap={5}>
-												<Button w="fit-content" colorScheme="green" onClick={() => {}}>
+												<Button w="fit-content" colorScheme="green" onClick={() => openTab()}>
 													<MdGridView />
 												</Button>
 												<Button
