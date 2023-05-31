@@ -96,6 +96,7 @@ export default function Books() {
 									idioma={book.idioma}
 									nivel={book.nivel}
 									id={book.id}
+									editHandler={()=>{}}
 								/>
 							);
 					})}
