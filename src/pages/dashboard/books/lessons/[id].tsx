@@ -100,7 +100,7 @@ export default function Lessons() {
 				setLoading(true);
 				adicionarLesson({
 					bookId,
-					canvaUrl,
+					canvaUrl:canvaUrl+'?embed',
 					nome
 				}).then(() => {
 					setLoading(false);
