@@ -46,6 +46,7 @@ import {
   updateAula,
 } from "@/services/api";
 import useAuth from "@/hooks/useAuth";
+import { color } from "framer-motion";
 
 interface AulasGet {
   id: string;
@@ -286,12 +287,13 @@ export default function Aulas() {
               border="none"
               bgColor="gray.600"
             >
-              <option value="">Selecione o Professor</option>;
+              <option value="" style={{color:'black'}}>Selecione o Professor</option>;
               {professores.map((item, index) => {
                 return (
                   <option
                     value={item.id}
                     key={index}
+                    style={{color:'black'}}
                   >{`${item.nome} ${item.sobrenome}`}</option>
                 );
               })}

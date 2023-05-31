@@ -122,7 +122,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
         <Flex justifyContent="center" alignItems="center" gap={"10px"}>
           <Img src={'https://firebasestorage.googleapis.com/v0/b/projetcs-storage.appspot.com/o/windfall%2FWhatsApp%20Image%202023-03-29%20at%2014.04.46.jpeg?alt=media&token=1095f376-9566-4936-99c3-5eb9e3c1a541'} width="50px" borderRadius="10px" boxShadow="lg" />
           <Text fontSize="lg" fontFamily="Poppins" fontWeight="bold" color="#DDD">
-            Windfall Language
+            Windfall
           </Text>
         </Flex>
         <CloseButton display={{ base: "flex", md: "none" }} onClick={onClose} 
@@ -226,7 +226,7 @@ const MobileNav = ({ menuOpen, ...rest }: MobileProps) => {
         fontWeight="bold"
         color="white"
       >
-        Windfall Language
+        Windfall
       </Text>
 
       <HStack spacing={{ base: "0", md: "6" }}>

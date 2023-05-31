@@ -113,7 +113,7 @@ export default function Login() {
 						boxShadow="lg"
 					/>
 					<Heading color="white" fontSize={'2xl'}>
-						Windfall Language Institute 🤩
+						Windfall Language Institute
 					</Heading>
 					<FormControl id="email">
 						<FormLabel color="white">Seu email</FormLabel>
