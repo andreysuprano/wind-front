@@ -180,9 +180,9 @@ export default function Alunos() {
 				setValue('sobrenome', editingAluno.sobrenome);
 				setValue('cpf', editingAluno.cpf);
 				setValue('email', editingAluno.email);
-        unregister('senha')
-        unregister('ativo')
-        unregister('professorId')
+				unregister('senha')
+				unregister('ativo')
+				unregister('professorId')
 			} else {
 				setValue('nome', '');
 				setValue('sobrenome', '');

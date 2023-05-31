@@ -42,25 +42,7 @@ interface LinkItemProps {
   icon: IconType;
   href: string;
 }
-const LinkItems: Array<LinkItemProps> = [
-  { name: "Home", icon: FaHome, href: "/dashboard" },
-  { name: "Professores", icon: FaUserTie, href: "/dashboard/professores" },
-  { name: "Alunos", icon: FaUserGraduate, href: "/dashboard/alunos" },
-  { name: "Books", icon: FaBook, href: "/dashboard/books" },
-  //{ name: "Homeworks", icon: FaBook, href: "/dashboard/homeworks" },
-  { name: "Aulas", icon: FaChalkboardTeacher, href: "/dashboard/aulas" },
-];
 
-const LinkItemsProfessor: Array<LinkItemProps> = [
-  { name: "Home", icon: FaHome, href: "/dashboard" },
-  { name: "Alunos", icon: FaUserGraduate, href: "/dashboard/alunos" },
-  { name: "Books", icon: FaBook, href: "/dashboard/books" },
-  {
-    name: "Aulas",
-    icon: FaChalkboardTeacher,
-    href: "/dashboard/aulas-professor",
-  },
-];
 
 export default function SidebarWithHeader({
   children,
@@ -106,6 +88,25 @@ interface SidebarProps extends BoxProps {
 
 const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
   const { user, logout } = useAuth();
+  const LinkItems: Array<LinkItemProps> = [
+    { name: "Home", icon: FaHome, href: "/dashboard" },
+    { name: "Professores", icon: FaUserTie, href: "/dashboard/professores" },
+    { name: "Alunos", icon: FaUserGraduate, href: "/dashboard/alunos" },
+    { name: "Books", icon: FaBook, href: "/dashboard/books" },
+    //{ name: "Homeworks", icon: FaBook, href: "/dashboard/homeworks" },
+    { name: "Aulas", icon: FaChalkboardTeacher, href: "/dashboard/aulas" },
+  ];
+  
+  const LinkItemsProfessor: Array<LinkItemProps> = [
+    { name: "Home", icon: FaHome, href: "/dashboard" },
+    { name: "Alunos", icon: FaUserGraduate, href: "/dashboard/alunos" },
+    { name: "Books", icon: FaBook, href: "/dashboard/books" },
+    {
+      name: "Aulas",
+      icon: FaChalkboardTeacher,
+      href: `/dashboard/aulas-professor?id=${user?.username}`,
+    },
+  ];
   return (
     <Box
       transition="3s ease"

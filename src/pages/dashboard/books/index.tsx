@@ -1,7 +1,7 @@
 import CardMaterial, { CardBookProps } from '@/components/CardMaterial';
 import SidebarWithHeader from '@/components/SideBar';
 import useAuth from '@/hooks/useAuth';
-import { adicionarBook, listarBooks } from '@/services/api';
+import { adicionarBook, listarBooks, updateBook } from '@/services/api';
 import { toBase64, uploadWithBase64 } from '@/util/imageHelper';
 import {
 	Breadcrumb,
@@ -45,9 +45,11 @@ export default function Books() {
 	const [ books, setBooks ] = useState<CardBookProps[]>([]);
 	const [ loading, setLoading ] = useState(true);
 	const [ isUploading, setIsUploading ] = useState(false);
+	const [ bookEditing, setBookEditing ] = useState('');
 	const [ search, setSearch ] = useState('');
 	const [ step, setStep ] = useState(1);
-
+	
+	const [ selectImage, setSelectImage ] = useState(false);
 	const [ imageFile, setImageFile ] = useState<File>();
 
 	const [ nome, setNome ] = useState('');
@@ -59,6 +61,7 @@ export default function Books() {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const toast = useToast();
 	const {user} = useAuth();
+
 	const buscarBooks = useCallback(
 		() => {
 			listarBooks()
@@ -83,6 +86,7 @@ export default function Books() {
 
 	const handleSelectedFile = async (files: any) => {
 		if (files && files[0].size < 10000000) {
+			setSelectImage(true);
 			setImageFile(files[0]);
 			const picBase64 = await toBase64(files[0]);
 			setCapa(`${picBase64}`);
@@ -153,6 +157,102 @@ export default function Books() {
 			});
 		}
 	};
+
+	const handleSaveEditingBook = async () => {
+		if (!capa) {
+			toast({
+				title: `A capa é obrigatória!`,
+				status: 'error',
+				isClosable: true
+			});
+		} else {
+			if(bookEditing && selectImage){
+				setIsUploading(true);
+				uploadWithBase64(capa).then((link) => {
+					updateBook(bookEditing,{
+						capa: link,
+						descricao,
+						idioma,
+						nivel,
+						nome
+					})
+						.then(() => {
+							setIsUploading(false);
+							onClose();
+							setCapa('');
+							setDescricao('');
+							setIdioma('');
+							setNivel('');
+							setNome('');
+							toast({
+								title: `Livro adicionado com sucesso!`,
+								status: 'success',
+								isClosable: true
+							});
+							setStep(1);
+							buscarBooks();
+						})
+						.catch((err) => {
+							toast({
+								title: `Erro ao adicionar livro! ${err}`,
+								status: 'success',
+								isClosable: true
+							});
+							setStep(1);
+						});
+				});
+			}else{
+				updateBook(bookEditing,{
+					capa,
+					descricao,
+					idioma,
+					nivel,
+					nome
+				})
+					.then(() => {
+						setIsUploading(false);
+						onClose();
+						setCapa('');
+						setDescricao('');
+						setIdioma('');
+						setNivel('');
+						setNome('');
+						toast({
+							title: `Livro adicionado com sucesso!`,
+							status: 'success',
+							isClosable: true
+						});
+						setStep(1);
+						buscarBooks();
+					})
+					.catch((err) => {
+						toast({
+							title: `Erro ao adicionar livro! ${err}`,
+							status: 'success',
+							isClosable: true
+						});
+						setStep(1);
+					});
+			}
+		}
+	};
+
+	const findBookInArray = (id:string) => {
+		const book = books.find(bk => bk.id === id);
+		if(book){
+			setCapa(book.capa);
+			setDescricao(book.descricao);
+			setIdioma(book.idioma);
+			setNivel(book.nivel);
+			setNome(book.nome);
+			setBookEditing(book.id);
+		}
+	}
+
+	const handleEditBook = (id:string) =>{
+		findBookInArray(id);
+		onOpen();
+	}
 
 	return (
 		<SidebarWithHeader>
@@ -226,6 +326,7 @@ export default function Books() {
 									idioma={book.idioma}
 									nivel={book.nivel}
 									id={book.id}
+									editHandler={handleEditBook}
 								/>
 							);
 					})}
@@ -236,13 +337,20 @@ export default function Books() {
 				isOpen={isOpen}
 				onClose={() => {
 					setStep(1);
+					setCapa('');
+					setDescricao('');
+					setIdioma('');
+					setNivel('');
+					setNome('');
+					setBookEditing('');
+					setSelectImage(false);
 					onClose();
 				}}
 				isCentered
 			>
 				<ModalOverlay />
 				<ModalContent>
-					<ModalHeader>Novo Book</ModalHeader>
+					<ModalHeader>{bookEditing ? 'Edit Book' : 'Novo Book'}</ModalHeader>
 					<ModalCloseButton />
 					<ModalBody>
 						{step === 1 ? (
@@ -326,6 +434,9 @@ export default function Books() {
 									if (step === 1) {
 										handleNextStep();
 									} else {
+										if(bookEditing){
+											return handleSaveEditingBook();
+										}
 										handleSaveBook();
 									}
 								}}

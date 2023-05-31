@@ -125,14 +125,17 @@ export default function AulasProfessor() {
 	});
 	const cancelRef = useRef<HTMLButtonElement>(null);
 	const toast = useToast();
-
 	const [ editingAulaID, setEditingAulaID ] = useState('');
-
+	
 	const editingAula = useMemo(() => aulas.find((aula) => aula.id === editingAulaID), [ aulas, editingAulaID ]);
+	
+	const queryString = window.location.search;
+	const urlParams = new URLSearchParams(queryString);
+	const id = urlParams.get('id')
 
 	const buscarAulas = useCallback(
 		() => {
-			buscarProfessorPorEmail(`${user?.username}`)
+			buscarProfessorPorEmail(`${id}`)
 				.then((professor) => {
 					setValue('professorId', professor.data.id);
 					listarAulas(professor.data.id)

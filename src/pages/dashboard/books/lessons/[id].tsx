@@ -1,14 +1,11 @@
 import SidebarWithHeader from '@/components/SideBar';
 import useAuth from '@/hooks/useAuth';
 import {
-	adicionarBook,
 	adicionarLesson,
 	buscarBookPorId,
 	deleteLesson,
-	listarBooks,
 	updateLesson
 } from '@/services/api';
-import { toBase64, uploadWithBase64 } from '@/util/imageHelper';
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -17,9 +14,6 @@ import {
 	Flex,
 	FormControl,
 	FormLabel,
-	Text,
-	Image,
-	Img,
 	Input,
 	InputGroup,
 	InputLeftElement,
@@ -217,9 +211,9 @@ export default function Lessons() {
 						</Thead>
 						<Tbody>
 							{lessons.sort((a,b)=>{
-								if(a.nome < b.nome)
+								if(Number(a.nome.split(' ')[1]) < Number(b.nome.split(' ')[1]))
 									return -1;
-								if(a.nome > b.nome)
+								if(Number(a.nome.split(' ')[1]) >Number(b.nome.split(' ')[1]))
 									return 1
 								return 0
 							}).map((lesson, index) => {

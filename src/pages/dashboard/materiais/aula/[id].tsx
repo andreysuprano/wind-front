@@ -1,5 +1,5 @@
 import { buscarAlunoPorId, buscarBookPorId, updateStatusAula } from '@/services/api';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button, Flex, Spinner, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr, useToast } from '@chakra-ui/react';
 import styles from '@/styles/general.module.css';
 import { buscarAulaPorID } from '@/services/api';
@@ -37,13 +37,15 @@ export default function MateriaisId() {
 	const [ loading, setLoading ] = useState(true);
 	const [ countdown, setCountdown ] = useState(4800);
 	const [ nomeAluno, setNomeAluno ] = useState('');
-
+	
 	const [ aula, setAula ] = useState<Aula>();
 	const [ aulaStatus, setAulaStatus] = useState('');
 	const [ aulaBook, setBook] = useState<Book>();
 	const [ lessons, setLessons] = useState<Lesson[]>([]);
 	const [ lesson, setLesson ] = useState<Lesson>();
 	const aulaIdPath = location.pathname.split('/')[4];
+	const [count, setCount] = useState(0);
+	
 
 	useEffect(()=>{
 		buscarAulaPorID(aulaIdPath).then((aulaData)=>{
@@ -113,15 +115,23 @@ export default function MateriaisId() {
 				setDenied(true);
 			}
 		});
-		
+	}, []);
+
+	useEffect(()=>{
+		setInterval(() => {
+			const btn = document.getElementById('btn');
+			if(btn)
+				btn.click();
+		}, 10);
 	}, []);
 
 	useEffect(() => {
-		if(minutes == minutes-10){
-			updateStatusAula(aulaIdPath, 'INICIADA', {
-				info: 'Update Timer',
-				timer: countdown
-			});
+		setCount(count + 1);
+		updateStatusAula(aulaIdPath, 'INICIADA', {
+			info: 'Update Timer',
+			timer: countdown
+		});
+		if(count > 2){
 			toast({
 				title: `Information`,
 				description:'You can access this material by contacting Windfall management. Copyrighted material!',
@@ -129,8 +139,9 @@ export default function MateriaisId() {
 				isClosable: true,
 				position:'top-left'
 			});	
+			setCount(0);
 		}
-	}, []);
+	}, [minutes]);
 
 	return (
 		<>
@@ -177,6 +188,7 @@ export default function MateriaisId() {
 								>
 								 <MdOutlineLibraryBooks />
 							</Button>
+							
 							<Text fontWeight={900} color={'white'}>
 								{countdown === 0 ? (
 									'Acabou o tempo'
@@ -189,6 +201,16 @@ export default function MateriaisId() {
 							<Text fontWeight={900} color={'white'}>
 								{nomeAluno}
 							</Text>
+							<Button
+									aria-label="Toggle Color Mode"
+									onClick={()=>{}}
+									_focus={{ boxShadow: 'none' }}
+									w="fit-content"
+									colorScheme='gray.700'
+									zIndex={999}
+									id='btn'
+								>
+							</Button>
 						</Flex>
 					</Flex>
 					<Flex height="100vh">
@@ -244,10 +266,10 @@ export default function MateriaisId() {
 						<TableContainer backgroundColor="gray.700" borderRadius="10px" overflowY={'auto'} maxH={'70vh'}>
 					<Table variant="unstyled" color="#DDD">
 						<Tbody>
-							{lessons.sort((a,b)=>{
-								if(a.nome < b.nome)
+						{lessons.sort((a,b)=>{
+								if(Number(a.nome.split(' ')[1]) < Number(b.nome.split(' ')[1]))
 									return -1;
-								if(a.nome > b.nome)
+								if(Number(a.nome.split(' ')[1]) >Number(b.nome.split(' ')[1]))
 									return 1
 								return 0
 							}).map((lesson, index) => {

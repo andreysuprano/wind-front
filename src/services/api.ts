@@ -197,6 +197,10 @@ export const deleteBook = async (id: string) => {
 	return await client.delete(`/v1/book/${id}`);
 };
 
+export const updateBook = async (id: string, payload: CreateBookPost) => {
+	return await client.put(`/v1/book/${id}`, payload);
+};
+
 export const deleteLesson = async (id: string) => {
 	return await client.delete(`/v1/lesson/${id}`);
 };

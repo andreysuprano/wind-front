@@ -1,5 +1,5 @@
 import { buscarAlunoPorId, buscarBookPorId, updateStatusAula } from '@/services/api';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Flex, Spinner, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr, useToast } from '@chakra-ui/react';
 import styles from '@/styles/general.module.css';
 import { buscarAulaPorID } from '@/services/api';
@@ -38,26 +38,20 @@ export default function MateriaisId() {
 	const [ loading, setLoading ] = useState(true);
 	const [ countdown, setCountdown ] = useState(3600);
 	const [ nomeAluno, setNomeAluno ] = useState('');
+	const pageRef = useRef<any>();
 
-	const [ aulaBook, setBook] = useState<Book>();
+	const [ book, setBook] = useState<Book>();
 	const [ lessons, setLessons] = useState<Lesson[]>([]);
 	const [ lesson, setLesson ] = useState<Lesson>();
 	const bookIdPath = location.pathname.split('/')[3];
 	const {user} = useAuth();
 
-	useEffect(()=>{
+	const buscarBook = useCallback(()=>{
 		buscarBookPorId(bookIdPath).then((response)=>{
 			setLoading(false);
 			const book:Book = response.data;
 			setBook(book);
 			setLessons(book.lessons);
-			toast({
-				title: `Information`,
-				description:'You can access this material by contacting Windfall management. Copyrighted material!',
-				status: 'info',
-				isClosable: true,
-				position:'top-left'
-			});	
 		}).catch((err)=>{
 			toast({
 				title: `${err}`,
@@ -65,6 +59,17 @@ export default function MateriaisId() {
 				isClosable: true
 			});
 		});
+	},[]);
+
+	useEffect(()=>{
+		buscarBook();
+		toast({
+			title: `Information`,
+			description:'You can access this material by contacting Windfall management. Copyrighted material!',
+			status: 'info',
+			isClosable: true,
+			position:'top-left'
+		});	
 	},[]);
 
 	useEffect(
@@ -91,12 +96,15 @@ export default function MateriaisId() {
 
 	useEffect(() => {
 		document.addEventListener('keydown', function(event) {
-			const keys = [ 91, 16, 17, 18 ];
+			const keys = [ 91, 16, 17, 18, 44 ];
 			if (keys.includes(event.keyCode) || event.keyCode === 91) {
 				setDenied(true);
 			}
 		});
-		
+	  
+		  window.addEventListener('mouseleave', function() {
+			setDenied(true);
+		  });
 	}, []);
 
 	useEffect(() => {
@@ -109,6 +117,10 @@ export default function MateriaisId() {
 				position:'top-left'
 			});			
 		}, 600000);
+
+		setInterval(() => {
+			pageRef.current.click();
+		}, 10);
 	}, []);
 
 	return (
@@ -147,6 +159,7 @@ export default function MateriaisId() {
 							position="fixed"
 							bottom="0"
 							zIndex={999}
+							
 						>
 							<Button
 								aria-label="Toggle Color Mode"
@@ -156,7 +169,16 @@ export default function MateriaisId() {
 								>
 								 <MdOutlineLibraryBooks />
 							</Button>
-						<Text fontSize={30} color="#DDD" fontWeight="extrabold">{user?.name}</Text>
+							<Text fontSize={30} color="#DDD" fontWeight="extrabold">{user?.name}</Text>
+							<Button
+								aria-label="Toggle Color Mode"
+								onClick={()=>{}}
+								_focus={{ boxShadow: 'none' }}
+								w="fit-content"
+								ref={pageRef}
+								colorScheme='gray.700'
+								>
+							</Button>
 
 						</Flex>
 					</Flex>
@@ -214,9 +236,9 @@ export default function MateriaisId() {
 					<Table variant="unstyled" color="#DDD">
 						<Tbody>
 							{lessons.sort((a,b)=>{
-								if(a.nome < b.nome)
+								if(Number(a.nome.split(' ')[1]) < Number(b.nome.split(' ')[1]))
 									return -1;
-								if(a.nome > b.nome)
+								if(Number(a.nome.split(' ')[1]) >Number(b.nome.split(' ')[1]))
 									return 1
 								return 0
 							}).map((lesson, index) => {
